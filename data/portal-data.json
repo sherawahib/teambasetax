@@ -1,0 +1,174 @@
+{
+  "documents": [
+    {
+      "id": "d1",
+      "name": "W2_Employer_2025.pdf",
+      "category": "W-2 & Income",
+      "size": 245000,
+      "uploadedAt": "2026-01-28T10:00:00.000Z",
+      "taxYear": 2025,
+      "status": "approved"
+    },
+    {
+      "id": "d2",
+      "name": "1099-NEC_Freelance_2025.pdf",
+      "category": "1099 Forms",
+      "size": 189000,
+      "uploadedAt": "2026-02-03T14:30:00.000Z",
+      "taxYear": 2025,
+      "status": "reviewing"
+    }
+  ],
+  "taxReturns": [
+    {
+      "year": 2025,
+      "type": "Individual (1040)",
+      "status": "in-progress",
+      "preparer": "Michael Reis, EA",
+      "lastUpdated": "2026-02-12T16:00:00.000Z"
+    },
+    {
+      "year": 2024,
+      "type": "Individual (1040)",
+      "status": "accepted",
+      "filedDate": "2025-04-02",
+      "refundEstimate": "$1,240 refund",
+      "preparer": "Michael Reis, EA",
+      "lastUpdated": "2025-05-15T11:00:00.000Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "firm",
+      "subject": "2025 Tax Documents Received",
+      "body": "We received your W-2 and 1099-NEC. Please upload remaining deduction documents.",
+      "sentAt": "2026-02-04T11:30:00.000Z",
+      "read": true
+    }
+  ],
+  "appointments": [
+    {
+      "id": "a1",
+      "title": "2025 Tax Return Review",
+      "date": "2026-03-05",
+      "time": "2:00 PM",
+      "type": "In-Office",
+      "status": "scheduled",
+      "notes": "Bring photo ID and remaining documents."
+    }
+  ],
+  "invoices": [
+    {
+      "id": "inv1",
+      "description": "2024 Individual Tax Preparation",
+      "amount": 385,
+      "dueDate": "2025-04-01",
+      "status": "paid",
+      "taxYear": 2024
+    },
+    {
+      "id": "inv2",
+      "description": "2025 Individual Tax Preparation (estimate)",
+      "amount": 425,
+      "dueDate": "2026-04-15",
+      "status": "pending",
+      "taxYear": 2025
+    }
+  ],
+  "irsNotices": [
+    {
+      "id": "n1",
+      "noticeNumber": "CP2000",
+      "issueDate": "2026-01-18",
+      "topic": "Income discrepancy — unreported 1099 income",
+      "status": "in-representation",
+      "responseDue": "2026-03-18",
+      "assignedTo": "Michael Reis, EA"
+    }
+  ],
+  "legalCases": [
+    {
+      "id": "lc1",
+      "title": "CP2000 Underreported Income Response",
+      "category": "Audit",
+      "status": "active",
+      "openedDate": "2026-01-20",
+      "nextStep": "Firm preparing response — due March 18, 2026"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "c1",
+      "label": "Gather W-2s from all employers",
+      "category": "Income",
+      "done": true
+    },
+    {
+      "id": "c2",
+      "label": "Collect 1099-NEC / 1099-MISC forms",
+      "category": "Income",
+      "done": true
+    },
+    {
+      "id": "c3",
+      "label": "Mortgage interest statement (1098)",
+      "category": "Deductions",
+      "done": false
+    },
+    {
+      "id": "c4",
+      "label": "Property tax receipts",
+      "category": "Deductions",
+      "done": false
+    },
+    {
+      "id": "c5",
+      "label": "Charitable contribution records",
+      "category": "Deductions",
+      "done": false
+    },
+    {
+      "id": "c6",
+      "label": "Medical expense receipts (if itemizing)",
+      "category": "Deductions",
+      "done": false
+    },
+    {
+      "id": "c7",
+      "label": "Childcare provider tax ID (Form 2441)",
+      "category": "Credits",
+      "done": false
+    },
+    {
+      "id": "c8",
+      "label": "Education expenses (1098-T)",
+      "category": "Credits",
+      "done": false
+    },
+    {
+      "id": "c9",
+      "label": "Business income & expense ledger",
+      "category": "Business",
+      "done": false
+    },
+    {
+      "id": "c10",
+      "label": "Quarterly estimated tax payments made",
+      "category": "Business",
+      "done": false
+    },
+    {
+      "id": "c11",
+      "label": "Retirement contribution statements",
+      "category": "Planning",
+      "done": false
+    },
+    {
+      "id": "c12",
+      "label": "Prior-year return copy",
+      "category": "General",
+      "done": true
+    }
+  ]
+}

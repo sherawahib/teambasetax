@@ -1,0 +1,57 @@
+[
+  {
+    "id": "seed-1",
+    "name": "Maria L.",
+    "email": "",
+    "rating": 5,
+    "service": "Personal Tax Services",
+    "location": "Germantown, MD",
+    "text": "Michael and his team made tax season stress-free. They found deductions I missed for years and explained everything clearly. Highly recommend TEAMBASED Tax Services!",
+    "recommend": true,
+    "createdAt": "2025-11-12T10:00:00.000Z"
+  },
+  {
+    "id": "seed-2",
+    "name": "James R.",
+    "email": "",
+    "rating": 5,
+    "service": "Business Tax Services",
+    "location": "Rockville, MD",
+    "text": "Professional, responsive, and thorough. They handle our small business bookkeeping and taxes with accuracy we can trust. Worth every penny.",
+    "recommend": true,
+    "createdAt": "2025-10-28T14:30:00.000Z"
+  },
+  {
+    "id": "seed-3",
+    "name": "Patricia W.",
+    "email": "",
+    "rating": 5,
+    "service": "Retirement Planning",
+    "location": "Gaithersburg, MD",
+    "text": "They took time to understand my retirement goals and tax situation. Patient, knowledgeable, and never rushed. A true personalized experience.",
+    "recommend": true,
+    "createdAt": "2025-09-15T09:15:00.000Z"
+  },
+  {
+    "id": "seed-4",
+    "name": "David K.",
+    "email": "",
+    "rating": 4,
+    "service": "IRS Representation",
+    "location": "Frederick, MD",
+    "text": "When I received an IRS notice, they handled it quickly and kept me informed every step of the way. Resolved my issue without unnecessary stress.",
+    "recommend": true,
+    "createdAt": "2025-08-20T16:45:00.000Z"
+  },
+  {
+    "id": "seed-5",
+    "name": "Angela M.",
+    "email": "",
+    "rating": 5,
+    "service": "Personal Tax Services",
+    "location": "Clarksburg, MD",
+    "text": "First-time client discount was a nice surprise. They even offered a home visit for my mother. Exceptional service for seniors in our area.",
+    "recommend": true,
+    "createdAt": "2025-07-08T11:20:00.000Z"
+  }
+]
