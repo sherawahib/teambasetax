@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Testimonial {
+  id        String   @id
+  name      String
+  email     String   @default("")
+  rating    Int
+  service   String
+  location  String   @default("")
+  text      String
+  recommend Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model PortalClient {
+  id           String   @id
+  name         String
+  email        String   @unique
+  phone        String
+  accountType  String
+  clientSince  String
+  passwordHash String
+  salt         String
+  createdAt    DateTime @default(now())
+}
+
+model PortalDocument {
+  id         String   @id
+  name       String
+  category   String
+  size       Int
+  taxYear    Int
+  status     String
+  uploadedAt DateTime @default(now())
+}
+
+model PortalMessage {
+  id      String   @id
+  from    String
+  subject String
+  body    String
+  read    Boolean  @default(false)
+  sentAt  DateTime @default(now())
+}
+
+model PortalTaxReturn {
+  year           Int      @id
+  type           String
+  status         String
+  filedDate      String?
+  refundEstimate String?
+  preparer       String
+  lastUpdated    DateTime @default(now())
+}
+
+model PortalAppointment {
+  id     String  @id
+  title  String
+  date   String
+  time   String
+  type   String
+  status String
+  notes  String?
+}
+
+model PortalInvoice {
+  id          String @id
+  description String
+  amount      Float
+  dueDate     String
+  status      String
+  taxYear     Int?
+}
+
+model PortalIrsNotice {
+  id           String  @id
+  noticeNumber String
+  issueDate    String
+  topic        String
+  status       String
+  responseDue  String?
+  assignedTo   String
+}
+
+model PortalLegalCase {
+  id         String @id
+  title      String
+  category   String
+  status     String
+  openedDate String
+  nextStep   String
+}
+
+model PortalChecklistItem {
+  id       String  @id
+  label    String
+  category String
+  done     Boolean @default(false)
+}

@@ -1,5 +1,3 @@
-import { promises as fs } from "fs";
-import path from "path";
 import type {
   ChecklistItem,
   IrsNotice,
@@ -10,7 +8,7 @@ import type {
   PortalMessage,
   TaxReturnStatus,
 } from "@/types/client-portal";
-import { SEED_CHECKLIST } from "@/data/client-portal";
+import { prisma } from "@/lib/prisma";
 
 export type ServerPortalData = {
   documents: PortalDocument[];
@@ -23,166 +21,165 @@ export type ServerPortalData = {
   checklist: ChecklistItem[];
 };
 
-const DATA_PATH = path.join(process.cwd(), "data", "portal-data.json");
-
-function seedData(): ServerPortalData {
-  return {
-    documents: [
-      {
-        id: "d1",
-        name: "W2_Employer_2025.pdf",
-        category: "W-2 & Income",
-        size: 245000,
-        uploadedAt: "2026-01-28T10:00:00.000Z",
-        taxYear: 2025,
-        status: "approved",
-      },
-      {
-        id: "d2",
-        name: "1099-NEC_Freelance_2025.pdf",
-        category: "1099 Forms",
-        size: 189000,
-        uploadedAt: "2026-02-03T14:30:00.000Z",
-        taxYear: 2025,
-        status: "reviewing",
-      },
-    ],
-    taxReturns: [
-      {
-        year: 2025,
-        type: "Individual (1040)",
-        status: "in-progress",
-        preparer: "Michael Reis, EA",
-        lastUpdated: "2026-02-12T16:00:00.000Z",
-      },
-      {
-        year: 2024,
-        type: "Individual (1040)",
-        status: "accepted",
-        filedDate: "2025-04-02",
-        refundEstimate: "$1,240 refund",
-        preparer: "Michael Reis, EA",
-        lastUpdated: "2025-05-15T11:00:00.000Z",
-      },
-    ],
-    messages: [
-      {
-        id: "m1",
-        from: "firm",
-        subject: "2025 Tax Documents Received",
-        body: "We received your W-2 and 1099-NEC. Please upload remaining deduction documents.",
-        sentAt: "2026-02-04T11:30:00.000Z",
-        read: true,
-      },
-    ],
-    appointments: [
-      {
-        id: "a1",
-        title: "2025 Tax Return Review",
-        date: "2026-03-05",
-        time: "2:00 PM",
-        type: "In-Office",
-        status: "scheduled",
-        notes: "Bring photo ID and remaining documents.",
-      },
-    ],
-    invoices: [
-      {
-        id: "inv1",
-        description: "2024 Individual Tax Preparation",
-        amount: 385,
-        dueDate: "2025-04-01",
-        status: "paid",
-        taxYear: 2024,
-      },
-      {
-        id: "inv2",
-        description: "2025 Individual Tax Preparation (estimate)",
-        amount: 425,
-        dueDate: "2026-04-15",
-        status: "pending",
-        taxYear: 2025,
-      },
-    ],
-    irsNotices: [
-      {
-        id: "n1",
-        noticeNumber: "CP2000",
-        issueDate: "2026-01-18",
-        topic: "Income discrepancy — unreported 1099 income",
-        status: "in-representation",
-        responseDue: "2026-03-18",
-        assignedTo: "Michael Reis, EA",
-      },
-    ],
-    legalCases: [
-      {
-        id: "lc1",
-        title: "CP2000 Underreported Income Response",
-        category: "Audit",
-        status: "active",
-        openedDate: "2026-01-20",
-        nextStep: "Firm preparing response — due March 18, 2026",
-      },
-    ],
-    checklist: SEED_CHECKLIST.map((item) => ({ ...item })),
-  };
-}
-
 export async function readPortalData(): Promise<ServerPortalData> {
-  try {
-    const raw = await fs.readFile(DATA_PATH, "utf8");
-    return JSON.parse(raw) as ServerPortalData;
-  } catch {
-    const seeded = seedData();
-    await writePortalData(seeded);
-    return seeded;
-  }
-}
+  const [documents, taxReturns, messages, appointments, invoices, irsNotices, legalCases, checklist] =
+    await Promise.all([
+      prisma.portalDocument.findMany({ orderBy: { uploadedAt: "desc" } }),
+      prisma.portalTaxReturn.findMany({ orderBy: { year: "desc" } }),
+      prisma.portalMessage.findMany({ orderBy: { sentAt: "desc" } }),
+      prisma.portalAppointment.findMany({ orderBy: { date: "desc" } }),
+      prisma.portalInvoice.findMany({ orderBy: { dueDate: "desc" } }),
+      prisma.portalIrsNotice.findMany({ orderBy: { issueDate: "desc" } }),
+      prisma.portalLegalCase.findMany({ orderBy: { openedDate: "desc" } }),
+      prisma.portalChecklistItem.findMany({ orderBy: { id: "asc" } }),
+    ]);
 
-export async function writePortalData(data: ServerPortalData) {
-  await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-  await fs.writeFile(DATA_PATH, JSON.stringify(data, null, 2), "utf8");
+  return {
+    documents: documents.map((d) => ({
+      id: d.id,
+      name: d.name,
+      category: d.category as PortalDocument["category"],
+      size: d.size,
+      taxYear: d.taxYear,
+      status: d.status as PortalDocument["status"],
+      uploadedAt: d.uploadedAt.toISOString(),
+    })),
+    taxReturns: taxReturns.map((t) => ({
+      year: t.year,
+      type: t.type,
+      status: t.status as TaxReturnStatus["status"],
+      filedDate: t.filedDate ?? undefined,
+      refundEstimate: t.refundEstimate ?? undefined,
+      preparer: t.preparer,
+      lastUpdated: t.lastUpdated.toISOString(),
+    })),
+    messages: messages.map((m) => ({
+      id: m.id,
+      from: m.from as PortalMessage["from"],
+      subject: m.subject,
+      body: m.body,
+      sentAt: m.sentAt.toISOString(),
+      read: m.read,
+    })),
+    appointments: appointments.map((a) => ({
+      id: a.id,
+      title: a.title,
+      date: a.date,
+      time: a.time,
+      type: a.type as PortalAppointment["type"],
+      status: a.status as PortalAppointment["status"],
+      notes: a.notes ?? undefined,
+    })),
+    invoices: invoices.map((i) => ({
+      id: i.id,
+      description: i.description,
+      amount: i.amount,
+      dueDate: i.dueDate,
+      status: i.status as PortalInvoice["status"],
+      taxYear: i.taxYear ?? undefined,
+    })),
+    irsNotices: irsNotices.map((n) => ({
+      id: n.id,
+      noticeNumber: n.noticeNumber,
+      issueDate: n.issueDate,
+      topic: n.topic,
+      status: n.status as IrsNotice["status"],
+      responseDue: n.responseDue ?? undefined,
+      assignedTo: n.assignedTo,
+    })),
+    legalCases: legalCases.map((c) => ({
+      id: c.id,
+      title: c.title,
+      category: c.category as LegalCase["category"],
+      status: c.status as LegalCase["status"],
+      openedDate: c.openedDate,
+      nextStep: c.nextStep,
+    })),
+    checklist: checklist.map((c) => ({
+      id: c.id,
+      label: c.label,
+      category: c.category,
+      done: c.done,
+    })),
+  };
 }
 
 export async function addServerDocument(doc: Omit<PortalDocument, "id" | "uploadedAt" | "status">) {
-  const data = await readPortalData();
-  const entry: PortalDocument = {
-    ...doc,
-    id: `d-${Date.now()}`,
-    uploadedAt: new Date().toISOString(),
-    status: "received",
+  const row = await prisma.portalDocument.create({
+    data: {
+      id: `d-${Date.now()}`,
+      name: doc.name,
+      category: doc.category,
+      size: doc.size,
+      taxYear: doc.taxYear,
+      status: "received",
+    },
+  });
+  return {
+    id: row.id,
+    name: row.name,
+    category: row.category as PortalDocument["category"],
+    size: row.size,
+    taxYear: row.taxYear,
+    status: row.status as PortalDocument["status"],
+    uploadedAt: row.uploadedAt.toISOString(),
   };
-  data.documents.unshift(entry);
-  await writePortalData(data);
-  return entry;
 }
 
 export async function addServerMessage(msg: Omit<PortalMessage, "id" | "sentAt">) {
-  const data = await readPortalData();
-  const entry: PortalMessage = {
-    ...msg,
-    id: `m-${Date.now()}`,
-    sentAt: new Date().toISOString(),
+  const row = await prisma.portalMessage.create({
+    data: {
+      id: `m-${Date.now()}`,
+      from: msg.from,
+      subject: msg.subject,
+      body: msg.body,
+      read: msg.read,
+    },
+  });
+  return {
+    id: row.id,
+    from: row.from as PortalMessage["from"],
+    subject: row.subject,
+    body: row.body,
+    sentAt: row.sentAt.toISOString(),
+    read: row.read,
   };
-  data.messages.unshift(entry);
-  await writePortalData(data);
-  return entry;
 }
 
 export async function deletePortalItem(type: keyof ServerPortalData, id: string): Promise<boolean> {
-  const data = await readPortalData();
-  const list = data[type];
-  if (!Array.isArray(list)) return false;
-  const filtered = list.filter((item: { id?: string; year?: number }) => {
-    if ("id" in item && item.id) return item.id !== id;
-    if ("year" in item && item.year !== undefined) return String(item.year) !== id;
+  try {
+    switch (type) {
+      case "documents":
+        await prisma.portalDocument.delete({ where: { id } });
+        break;
+      case "taxReturns":
+        await prisma.portalTaxReturn.delete({ where: { year: Number(id) } });
+        break;
+      case "messages":
+        await prisma.portalMessage.delete({ where: { id } });
+        break;
+      case "appointments":
+        await prisma.portalAppointment.delete({ where: { id } });
+        break;
+      case "invoices":
+        await prisma.portalInvoice.delete({ where: { id } });
+        break;
+      case "irsNotices":
+        await prisma.portalIrsNotice.delete({ where: { id } });
+        break;
+      case "legalCases":
+        await prisma.portalLegalCase.delete({ where: { id } });
+        break;
+      case "checklist":
+        await prisma.portalChecklistItem.delete({ where: { id } });
+        break;
+      default:
+        return false;
+    }
     return true;
-  });
-  if (filtered.length === list.length) return false;
-  (data as Record<string, unknown>)[type] = filtered;
-  await writePortalData(data);
-  return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function updatePortalItem(
@@ -190,21 +187,43 @@ export async function updatePortalItem(
   id: string,
   updates: Record<string, unknown>,
 ): Promise<boolean> {
-  const data = await readPortalData();
-  const list = data[type];
-  if (!Array.isArray(list)) return false;
-  let found = false;
-  const updated = list.map((item) => {
-    const record = item as { id?: string; year?: number };
-    const match = (record.id && record.id === id) || (record.year !== undefined && String(record.year) === id);
-    if (match) {
-      found = true;
-      return { ...item, ...updates };
+  try {
+    switch (type) {
+      case "documents":
+        await prisma.portalDocument.update({ where: { id }, data: updates as { status?: string } });
+        break;
+      case "taxReturns":
+        await prisma.portalTaxReturn.update({
+          where: { year: Number(id) },
+          data: {
+            ...updates,
+            lastUpdated: updates.lastUpdated ? new Date(String(updates.lastUpdated)) : new Date(),
+          } as { status?: string; lastUpdated?: Date },
+        });
+        break;
+      case "messages":
+        await prisma.portalMessage.update({ where: { id }, data: updates as { read?: boolean } });
+        break;
+      case "appointments":
+        await prisma.portalAppointment.update({ where: { id }, data: updates as { status?: string } });
+        break;
+      case "invoices":
+        await prisma.portalInvoice.update({ where: { id }, data: updates as { status?: string } });
+        break;
+      case "irsNotices":
+        await prisma.portalIrsNotice.update({ where: { id }, data: updates as { status?: string } });
+        break;
+      case "legalCases":
+        await prisma.portalLegalCase.update({ where: { id }, data: updates as { status?: string } });
+        break;
+      case "checklist":
+        await prisma.portalChecklistItem.update({ where: { id }, data: updates as { done?: boolean } });
+        break;
+      default:
+        return false;
     }
-    return item;
-  });
-  if (!found) return false;
-  (data as Record<string, unknown>)[type] = updated;
-  await writePortalData(data);
-  return true;
+    return true;
+  } catch {
+    return false;
+  }
 }
