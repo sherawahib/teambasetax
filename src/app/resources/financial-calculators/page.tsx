@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Calculator } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
-import { calculatorCount, getCalculatorsByCategory } from "@/data/site";
+import { getCalculatorsByCategory } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "Financial Calculators",
@@ -29,10 +29,6 @@ export default function FinancialCalculatorsPage() {
             Use these interactive calculators to explore tax scenarios, retirement planning, mortgage options, and
             everyday financial decisions. Results are estimates for illustrative purposes—contact us for personalized
             advice.
-          </p>
-          <p className="text-sm text-green-800 bg-green-50 border border-green-200 rounded-lg px-4 py-3 max-w-3xl mb-8">
-            All {calculatorCount} calculators run entirely on your device using standard financial formulas (matching
-            CalcXML industry standards). No iframes, external APIs, or third-party services are used.
           </p>
 
           <nav className="mb-12 flex flex-wrap gap-2" aria-label="Calculator categories">
