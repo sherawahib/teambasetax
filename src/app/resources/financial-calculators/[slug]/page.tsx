@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { calculators } from "@/data/site";
-import { calculatorComponents } from "@/lib/calculators/registry";
+import { getCalculatorComponent } from "@/lib/calculators/registry";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CalculatorPage({ params }: Props) {
   const { slug } = await params;
   const calc = calculators.find((c) => c.slug === slug);
-  const Component = calculatorComponents[slug];
+  const Component = getCalculatorComponent(slug);
 
   if (!calc || !Component) notFound();
 

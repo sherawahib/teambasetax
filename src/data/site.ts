@@ -111,21 +111,7 @@ export const navigation: NavItem[] = [
   },
 ];
 
-export const calculators = [
-  { slug: "adjustable-rate-mortgage", title: "Adjustable Rate Mortgage Calculator", description: "Compare fixed vs. adjustable rate mortgage payments over time." },
-  { slug: "mortgage", title: "Mortgage Calculator", description: "Estimate monthly payments, total interest, and amortization schedule." },
-  { slug: "401k-future-value", title: "401(k) Future Value Calculator", description: "Project the future value of your 401(k) contributions." },
-  { slug: "social-security-income", title: "Social Security Income Estimation", description: "Estimate your potential Social Security retirement benefits." },
-  { slug: "capital-gains-loss", title: "Capital Gains/Loss Tax Estimator", description: "Estimate taxes on investment gains and losses." },
-  { slug: "investment-growth-comparison", title: "Growth of Taxable, Tax-Deferred, and Tax-Free Investments", description: "Compare how different account types grow over time." },
-  { slug: "marginal-vs-effective-tax", title: "Marginal vs. Effective Tax Rate", description: "Understand your marginal and effective federal tax rates." },
-  { slug: "standard-vs-itemized", title: "Standard Deduction vs. Itemized", description: "Determine whether itemizing deductions saves you more." },
-  { slug: "annuity-tax-advantages", title: "Tax Advantages of an Annuity", description: "Explore tax-deferred growth benefits of annuities." },
-  { slug: "tax-credit-vs-deduction", title: "Tax Credit vs. Tax Deduction", description: "See the dollar impact difference between credits and deductions." },
-  { slug: "traditional-ira-rmd", title: "Traditional IRA RMD Calculator", description: "Calculate required minimum distributions from your IRA." },
-  { slug: "federal-tax-refund", title: "Individual Federal Tax Refund/Owed Estimator", description: "Estimate your federal tax refund or amount owed." },
-  { slug: "self-employment-tax", title: "Self-Employment Tax Owed", description: "Calculate self-employment tax on net business income." },
-];
+export { calculatorCatalog as calculators, calculatorCount, getCalculatorsByCategory, CALCULATOR_CATEGORIES } from "@/data/calculators/catalog";
 
 export const servicePages: Record<string, { title: string; subtitle: string; content: string[] }> = {
   "personal-tax-services": {
