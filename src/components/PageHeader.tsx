@@ -26,7 +26,7 @@ export default function PageHeader({
         fill
         priority={false}
         sizes="100vw"
-        className="object-cover object-center scale-105"
+        className="object-cover object-center"
       />
       <div
         className="absolute inset-0 bg-gradient-to-r from-navy/90 via-[#3d9440]/82 to-gold-dark/88"

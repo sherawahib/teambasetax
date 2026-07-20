@@ -136,7 +136,7 @@ export default function HomeHero() {
 
   return (
     <section
-      className="relative overflow-hidden text-white min-h-[420px] sm:min-h-[480px] md:min-h-[540px] lg:min-h-[600px] flex items-center"
+      className="relative overflow-hidden text-white min-h-[360px] sm:min-h-[420px] md:min-h-[480px] lg:min-h-[520px] flex items-center bg-[#0b140c]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
@@ -145,10 +145,10 @@ export default function HomeHero() {
       {SLIDES.map((item, i) => (
         <div
           key={item.src}
-          className={`absolute inset-0 transition-all ease-in-out motion-reduce:transition-none ${
+          className={`absolute inset-0 transition-opacity ease-in-out motion-reduce:transition-none ${
             i === index
-              ? "opacity-100 scale-100 z-[1]"
-              : "opacity-0 scale-105 z-0 pointer-events-none"
+              ? "opacity-100 z-[1]"
+              : "opacity-0 z-0 pointer-events-none"
           }`}
           style={{ transitionDuration: `${TRANSITION_MS}ms` }}
           aria-hidden={i !== index}
@@ -159,7 +159,7 @@ export default function HomeHero() {
             fill
             priority={i === 0}
             sizes="100vw"
-            className="object-cover object-center"
+            className="object-contain object-center"
           />
         </div>
       ))}
