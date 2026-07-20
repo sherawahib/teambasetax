@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const SLIDES = [
@@ -29,16 +29,92 @@ const SLIDES = [
 const AUTO_MS = 5000;
 const TRANSITION_MS = 800;
 
+function SliderNavButton({
+  direction,
+  onClick,
+}: {
+  direction: "prev" | "next";
+  onClick: () => void;
+}) {
+  const isPrev = direction === "prev";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={isPrev ? "Previous slide" : "Next slide"}
+      className={`group/nav relative z-20 hidden sm:flex items-center gap-0 overflow-hidden rounded-full border border-white/25 bg-white/10 text-white shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-300 hover:border-gold-light/60 hover:bg-navy/90 hover:shadow-[0_12px_40px_rgba(47,122,40,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-black/40 active:scale-95 ${
+        isPrev ? "pl-1.5 pr-1.5 hover:pr-4" : "pl-1.5 pr-1.5 hover:pl-4"
+      }`}
+    >
+      {/* Soft glow ring */}
+      <span
+        className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover/nav:opacity-100"
+        style={{
+          background:
+            "radial-gradient(circle at center, rgba(99,194,85,0.35), transparent 70%)",
+        }}
+        aria-hidden
+      />
+
+      {isPrev ? (
+        <>
+          <span className="relative flex h-12 w-12 items-center justify-center">
+            <span className="absolute inset-1 rounded-full bg-white/10 transition-transform duration-300 group-hover/nav:-translate-x-0.5 group-hover/nav:bg-gold-light/20" />
+            <ChevronLeft className="relative h-6 w-6 transition-transform duration-300 group-hover/nav:-translate-x-1" />
+          </span>
+          <span className="relative max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.18em] opacity-0 transition-all duration-300 group-hover/nav:max-w-[4.5rem] group-hover/nav:opacity-100 group-hover/nav:pr-3">
+            Prev
+          </span>
+        </>
+      ) : (
+        <>
+          <span className="relative max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.18em] opacity-0 transition-all duration-300 group-hover/nav:max-w-[4.5rem] group-hover/nav:opacity-100 group-hover/nav:pl-3">
+            Next
+          </span>
+          <span className="relative flex h-12 w-12 items-center justify-center">
+            <span className="absolute inset-1 rounded-full bg-white/10 transition-transform duration-300 group-hover/nav:translate-x-0.5 group-hover/nav:bg-gold-light/20" />
+            <ChevronRight className="relative h-6 w-6 transition-transform duration-300 group-hover/nav:translate-x-1" />
+          </span>
+        </>
+      )}
+    </button>
+  );
+}
+
+function MobileNavButton({
+  direction,
+  onClick,
+}: {
+  direction: "prev" | "next";
+  onClick: () => void;
+}) {
+  const isPrev = direction === "prev";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={isPrev ? "Previous slide" : "Next slide"}
+      className="sm:hidden relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white shadow-lg backdrop-blur-md transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
+    >
+      <span className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-light/25 to-transparent opacity-80" aria-hidden />
+      {isPrev ? <ChevronLeft className="relative h-5 w-5" /> : <ChevronRight className="relative h-5 w-5" />}
+    </button>
+  );
+}
+
 export default function HomeHero() {
   const [index, setIndex] = useState(0);
   const [textPhase, setTextPhase] = useState<"in" | "out">("in");
   const [paused, setPaused] = useState(false);
+  const [progressKey, setProgressKey] = useState(0);
 
   const goTo = useCallback((next: number) => {
     setTextPhase("out");
     window.setTimeout(() => {
       setIndex(((next % SLIDES.length) + SLIDES.length) % SLIDES.length);
       setTextPhase("in");
+      setProgressKey((k) => k + 1);
     }, TRANSITION_MS / 2);
   }, []);
 
@@ -50,6 +126,10 @@ export default function HomeHero() {
     const timer = window.setInterval(next, AUTO_MS);
     return () => window.clearInterval(timer);
   }, [next, paused]);
+
+  useEffect(() => {
+    if (!paused) setProgressKey((k) => k + 1);
+  }, [paused]);
 
   const slide = SLIDES[index];
   const textVisible = textPhase === "in";
@@ -84,7 +164,6 @@ export default function HomeHero() {
         </div>
       ))}
 
-      {/* Dark overlay so banner text stays prominent */}
       <div className="absolute inset-0 z-[2] bg-black/65" aria-hidden />
       <div
         className="absolute inset-0 z-[2] bg-gradient-to-r from-black/75 via-black/45 to-black/55"
@@ -123,7 +202,7 @@ export default function HomeHero() {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-white hover:bg-navy-light transition-colors shadow-lg w-full sm:w-auto min-h-11"
             >
               Our Services
-              <ArrowRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             </Link>
             <Link
               href="/contact"
@@ -135,42 +214,52 @@ export default function HomeHero() {
         </div>
       </div>
 
-      {/* Slide controls */}
-      <div className="absolute inset-y-0 left-0 z-20 flex items-center pl-2 sm:pl-4">
-        <button
-          type="button"
-          onClick={prev}
-          aria-label="Previous slide"
-          className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/30 bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 hover:border-white/50 transition-all"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+      {/* Advanced side nav */}
+      <div className="absolute inset-y-0 left-0 z-20 flex items-center pl-3 sm:pl-5 md:pl-8">
+        <SliderNavButton direction="prev" onClick={prev} />
+        <MobileNavButton direction="prev" onClick={prev} />
       </div>
-      <div className="absolute inset-y-0 right-0 z-20 flex items-center pr-2 sm:pr-4">
-        <button
-          type="button"
-          onClick={next}
-          aria-label="Next slide"
-          className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/30 bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 hover:border-white/50 transition-all"
-        >
-          <ArrowRight className="h-5 w-5" />
-        </button>
+      <div className="absolute inset-y-0 right-0 z-20 flex items-center pr-3 sm:pr-5 md:pr-8">
+        <SliderNavButton direction="next" onClick={next} />
+        <MobileNavButton direction="next" onClick={next} />
       </div>
 
-      {/* Dot indicators */}
-      <div className="absolute bottom-5 sm:bottom-7 left-0 right-0 z-20 flex justify-center gap-2.5">
-        {SLIDES.map((item, i) => (
-          <button
-            key={item.src}
-            type="button"
-            aria-label={`Go to slide ${i + 1}`}
-            aria-current={i === index}
-            onClick={() => goTo(i)}
-            className={`h-2.5 rounded-full transition-all duration-300 ${
-              i === index ? "w-8 bg-gold-light" : "w-2.5 bg-white/50 hover:bg-white/80"
-            }`}
-          />
-        ))}
+      {/* Advanced bottom controls: numbered pills + autoplay progress */}
+      <div className="absolute bottom-5 sm:bottom-7 left-0 right-0 z-20 flex flex-col items-center gap-3 px-4">
+        <div className="flex items-center gap-2 rounded-full border border-white/20 bg-black/35 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md">
+          {SLIDES.map((item, i) => {
+            const active = i === index;
+            return (
+              <button
+                key={item.src}
+                type="button"
+                aria-label={`Go to slide ${i + 1}`}
+                aria-current={active}
+                onClick={() => goTo(i)}
+                className={`group/dot relative overflow-hidden rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light ${
+                  active
+                    ? "h-10 min-w-[2.75rem] bg-navy px-3.5 text-white shadow-[inset_0_0_0_1px_rgba(99,194,85,0.55)]"
+                    : "h-10 w-10 bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                }`}
+              >
+                {active && !paused && (
+                  <span
+                    key={progressKey}
+                    className="absolute inset-y-0 left-0 bg-gold-light/30 hero-progress-bar motion-reduce:hidden"
+                    aria-hidden
+                  />
+                )}
+                <span className="relative z-[1] text-xs font-bold tracking-wide">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/55">
+          Slide {index + 1} / {SLIDES.length}
+        </p>
       </div>
     </section>
   );
