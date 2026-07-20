@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Layers, Map as MapIcon, Minus, Mountain, Plus, Satellite } from "lucide-react";
+import { Layers, Map as MapIcon, Minus, Mountain, PersonStanding, Plus, Satellite } from "lucide-react";
 import { contact } from "@/data/site";
 import type { Map as LeafletMap, Marker, TileLayer } from "leaflet";
 
-type MapMode = "roadmap" | "satellite" | "terrain" | "hybrid";
+type MapMode = "streetview" | "roadmap" | "satellite" | "terrain" | "hybrid";
 
 const MODES: { id: MapMode; label: string; icon: typeof MapIcon }[] = [
+  { id: "streetview", label: "Street View", icon: PersonStanding },
   { id: "roadmap", label: "Map", icon: MapIcon },
   { id: "satellite", label: "Satellite", icon: Satellite },
   { id: "terrain", label: "Terrain", icon: Mountain },
@@ -26,7 +27,7 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
   const labelLayerRef = useRef<TileLayer | null>(null);
   const markerRef = useRef<Marker | null>(null);
 
-  const [mode, setMode] = useState<MapMode>("roadmap");
+  const [mode, setMode] = useState<MapMode>("streetview");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -85,8 +86,10 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
 
   useEffect(() => {
     if (!ready || !mapRef.current) return;
+    if (mode === "streetview") return;
 
     let cancelled = false;
+    const resizeFrame = requestAnimationFrame(() => mapRef.current?.invalidateSize());
 
     async function setLayer() {
       const L = (await import("leaflet")).default;
@@ -152,6 +155,7 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
 
     return () => {
       cancelled = true;
+      cancelAnimationFrame(resizeFrame);
     };
   }, [mode, ready]);
 
@@ -162,6 +166,9 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
   }
 
   const directionsUrl = `https://www.openstreetmap.org/directions?to=${contact.mapCenter.lat}%2C${contact.mapCenter.lng}`;
+  const streetViewUrl =
+    `https://maps.google.com/maps?layer=c&cbll=${contact.mapCenter.lat},${contact.mapCenter.lng}` +
+    `&cbp=13,90,0,0,0&source=embed&output=svembed`;
 
   const shellClass = embedded
     ? `overflow-hidden bg-surface ${className}`
@@ -188,7 +195,7 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 self-end sm:self-auto">
+        <div className={`items-center gap-1.5 self-end sm:self-auto ${mode === "streetview" ? "hidden" : "flex"}`}>
           <button
             type="button"
             onClick={() => handleZoom(-1)}
@@ -209,14 +216,26 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
       </div>
 
       <div className="relative">
-        {!ready && (
+        {!ready && mode !== "streetview" && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-sm text-muted z-10 min-h-[220px] sm:min-h-[320px]">
             Loading map…
           </div>
         )}
+        <iframe
+          src={streetViewUrl}
+          title="Street View of TEAMBASED Tax Services"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+          className={`w-full min-h-[220px] sm:min-h-[320px] md:min-h-[360px] border-0 ${
+            mode === "streetview" ? "block" : "hidden"
+          }`}
+        />
         <div
           ref={containerRef}
-          className="w-full min-h-[220px] sm:min-h-[320px] md:min-h-[360px] z-0"
+          className={`w-full min-h-[220px] sm:min-h-[320px] md:min-h-[360px] z-0 ${
+            mode === "streetview" ? "hidden" : "block"
+          }`}
           role="region"
           aria-label="Interactive office location map"
         />
@@ -224,7 +243,11 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
 
       {!embedded && (
         <div className="px-3 py-2 bg-surface-elevated border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
-          <span>Drag to pan · Scroll or use +/- to zoom · Powered by OpenStreetMap</span>
+          <span>
+            {mode === "streetview"
+              ? "Drag to look around · Use arrows to explore the street"
+              : "Drag to pan · Scroll or use +/- to zoom · Powered by OpenStreetMap"}
+          </span>
           <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="text-gold font-medium hover:underline shrink-0">
             Get Directions →
           </a>

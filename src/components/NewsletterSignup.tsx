@@ -34,14 +34,14 @@ export default function NewsletterSignup({ compact }: Props) {
           name="firstName"
           placeholder="First Name"
           required
-          className={`w-full rounded-lg border border-border px-3 py-3 text-base sm:text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold min-h-11 ${compact ? "bg-white/10 border-white/20 text-white placeholder:text-white/60" : "bg-surface-elevated text-foreground"}`}
+          className={`w-full rounded-lg border border-border px-3 py-3 text-base sm:text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold min-h-11 ${compact ? "!bg-white/10 !border-white/20 !text-white placeholder:!text-white/60 focus:!border-gold-light" : "bg-surface-elevated text-foreground"}`}
         />
         <input
           type="text"
           name="lastName"
           placeholder="Last Name"
           required
-          className={`w-full rounded-lg border border-border px-3 py-3 text-base sm:text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold min-h-11 ${compact ? "bg-white/10 border-white/20 text-white placeholder:text-white/60" : "bg-surface-elevated text-foreground"}`}
+          className={`w-full rounded-lg border border-border px-3 py-3 text-base sm:text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold min-h-11 ${compact ? "!bg-white/10 !border-white/20 !text-white placeholder:!text-white/60 focus:!border-gold-light" : "bg-surface-elevated text-foreground"}`}
         />
       </div>
       <input
@@ -49,11 +49,11 @@ export default function NewsletterSignup({ compact }: Props) {
         name="email"
         placeholder="Email Address"
         required
-        className={`w-full rounded-lg border border-border px-3 py-3 text-base sm:text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold min-h-11 ${compact ? "bg-white/10 border-white/20 text-white placeholder:text-white/60" : "bg-surface-elevated text-foreground"}`}
+        className={`w-full rounded-lg border border-border px-3 py-3 text-base sm:text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold min-h-11 ${compact ? "!bg-white/10 !border-white/20 !text-white placeholder:!text-white/60 focus:!border-gold-light" : "bg-surface-elevated text-foreground"}`}
       />
       <button
         type="submit"
-        className={`flex items-center justify-center gap-2 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${compact ? "bg-gold text-white hover:bg-gold-light" : "bg-navy text-white hover:bg-navy-light"}`}
+        className={`flex min-h-11 items-center justify-center gap-2 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${compact ? "bg-gold-light text-[#142616] hover:bg-white" : "bg-navy text-white hover:bg-navy-light"}`}
       >
         <Send className="h-4 w-4" />
         Subscribe

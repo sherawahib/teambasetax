@@ -6,7 +6,7 @@ export const contact = {
   addressLine1: "2 Village Green Court",
   addressLine2: "Germantown, MD 20876",
   mapQuery: "2+Village+Green+Court,+Germantown,+MD+20876,+USA",
-  mapCenter: { lat: 39.129062, lng: -77.286089 },
+  mapCenter: { lat: 39.206004, lng: -77.264488 },
 };
 
 export const externalLinks = {
