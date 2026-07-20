@@ -19,7 +19,7 @@ export default function PageHeader({
   imageSrc = DEFAULT_HEADER_IMAGE,
 }: Props) {
   return (
-    <section className="relative overflow-hidden border-b border-white/15 text-white min-h-[168px] sm:min-h-[192px] md:min-h-[220px]">
+    <section className="relative w-full overflow-hidden border-b border-white/15 text-white aspect-[21/6] min-h-[140px] sm:min-h-[160px] md:min-h-[180px] max-h-[260px]">
       <Image
         src={imageSrc}
         alt=""

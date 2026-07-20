@@ -136,7 +136,7 @@ export default function HomeHero() {
 
   return (
     <section
-      className="relative overflow-hidden text-white min-h-[360px] sm:min-h-[420px] md:min-h-[480px] lg:min-h-[520px] flex items-center bg-[#0b140c]"
+      className="relative w-full overflow-hidden text-white flex items-center aspect-[3/2] min-h-[280px] max-h-[min(70vh,720px)] sm:min-h-[320px] md:max-h-[min(75vh,780px)]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
@@ -159,18 +159,18 @@ export default function HomeHero() {
             fill
             priority={i === 0}
             sizes="100vw"
-            className="object-contain object-center"
+            className="object-cover object-center"
           />
         </div>
       ))}
 
-      <div className="absolute inset-0 z-[2] bg-black/65" aria-hidden />
+      <div className="absolute inset-0 z-[2] bg-black/55" aria-hidden />
       <div
-        className="absolute inset-0 z-[2] bg-gradient-to-r from-black/75 via-black/45 to-black/55"
+        className="absolute inset-0 z-[2] bg-gradient-to-r from-black/70 via-black/40 to-black/50"
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-20 lg:py-28 w-full">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:py-14 md:py-16 lg:py-20 w-full">
         <div className="max-w-3xl flex flex-col gap-5 sm:gap-6">
           <p className="text-gold-light font-semibold tracking-wide uppercase text-sm">
             Germantown, MD · Maryland & DMV Area
