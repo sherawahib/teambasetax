@@ -9,8 +9,8 @@ type Props = {
 };
 
 const sizeMap = {
-  default: "h-10 sm:h-11 md:h-12 w-auto min-w-0 max-w-[130px] sm:max-w-[180px] md:max-w-[220px]",
-  footer: "h-9 md:h-10 w-auto min-w-[140px] max-w-[200px]",
+  default: "h-auto w-[200px] max-w-[200px] min-w-[200px]",
+  footer: "h-auto w-[200px] max-w-[200px] min-w-[200px]",
   hero: "h-16 md:h-20 w-auto min-w-[220px] max-w-[340px]",
   compact: "h-8 w-auto min-w-[120px] max-w-[160px]",
 };
@@ -29,8 +29,8 @@ export default function Logo({
     <img
       src={src}
       alt="Team Based Tax Services"
-      width={220}
-      height={48}
+      width={200}
+      height={80}
       decoding="async"
       loading={variant === "default" ? "eager" : "lazy"}
       className={`object-contain object-left block ${sizeClass} ${className}`}
