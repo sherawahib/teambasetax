@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown, Mail, MapPin, Menu, Phone, X } from "lucide-react";
+import { ChevronDown, Clock3, Mail, MapPin, Menu, Phone, ShieldCheck, X } from "lucide-react";
 import Logo from "@/components/Logo";
 import { contact, navigation, type NavItem } from "@/data/site";
 
@@ -62,21 +62,66 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-surface-elevated text-foreground border-b border-border shadow-md shadow-navy/10">
-      <div className="hidden md:block bg-navy border-b border-navy-light/40">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2 text-sm text-white">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 min-w-0">
-            <a href={`mailto:${contact.email}`} className="flex items-center gap-1.5 text-white hover:text-gold-light transition-colors min-w-0">
-              <Mail className="h-3.5 w-3.5 shrink-0 text-white" />
-              <span className="text-white break-all">{contact.email}</span>
+      {/* Advanced top bar */}
+      <div className="hidden md:block relative overflow-hidden bg-gradient-to-r from-[#1f5c1a] via-navy to-[#3d9440] text-white">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-30"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 12% 50%, rgba(255,255,255,0.22), transparent 28%), radial-gradient(circle at 88% 40%, rgba(99,194,85,0.35), transparent 32%)",
+          }}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold-light/70 to-transparent"
+          aria-hidden
+        />
+
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2.5">
+            <a
+              href={`mailto:${contact.email}`}
+              className="group inline-flex max-w-full items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-all hover:border-gold-light/50 hover:bg-white/15"
+            >
+              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold-light/25 text-gold-light ring-1 ring-gold-light/40 transition-transform group-hover:scale-105">
+                <Mail className="h-3.5 w-3.5" />
+              </span>
+              <span className="truncate">{contact.email}</span>
             </a>
-            <a href={contact.phoneHref} className="flex items-center gap-1.5 text-white hover:text-gold-light transition-colors shrink-0">
-              <Phone className="h-3.5 w-3.5 text-white" />
-              <span className="text-white">{contact.phone}</span>
+
+            <a
+              href={contact.phoneHref}
+              className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-all hover:border-gold-light/50 hover:bg-white/15"
+            >
+              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold-light/25 text-gold-light ring-1 ring-gold-light/40 transition-transform group-hover:scale-105">
+                <Phone className="h-3.5 w-3.5" />
+              </span>
+              <span>{contact.phone}</span>
             </a>
+
+            <div className="hidden xl:inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-xs text-white/90">
+              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
+                <MapPin className="h-3.5 w-3.5" />
+              </span>
+              <span className="max-w-[280px] truncate">{contact.address}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 text-white min-w-0">
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-white" />
-            <span className="text-white text-right">{contact.address}</span>
+
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-light">
+              <Clock3 className="h-3.5 w-3.5" />
+              Mon–Fri · 9am–5pm
+            </div>
+            <div className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-gold-light/30 bg-gold-light/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white">
+              <ShieldCheck className="h-3.5 w-3.5 text-gold-light" />
+              Secure Portal
+            </div>
+            <Link
+              href="/resources/client-portal"
+              className="inline-flex items-center rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-navy shadow-sm transition-all hover:bg-gold-light hover:text-white"
+            >
+              Login
+            </Link>
           </div>
         </div>
       </div>
@@ -120,7 +165,7 @@ export default function Header() {
         <div className="hidden lg:flex items-center gap-3 shrink-0">
           <Link
             href="/contact/request-appointment"
-            className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light transition-colors shadow-sm whitespace-nowrap"
+            className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light transition-all shadow-sm shadow-navy/25 hover:shadow-md whitespace-nowrap"
           >
             Schedule Appointment
           </Link>
