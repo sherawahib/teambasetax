@@ -12,8 +12,8 @@ type Props = {
 export default function CalculatorLayout({ title, description, children }: Props) {
   return (
     <div className="mx-auto max-w-4xl w-full min-w-0">
-      <div className="mb-4 flex items-start gap-3 rounded-lg border border-gold/30 bg-gold/10 px-3 sm:px-4 py-3 text-xs sm:text-sm text-green-800">
-        <ShieldCheck className="h-5 w-5 shrink-0 text-gold mt-0.5" />
+      <div className="mb-4 flex items-start gap-3 rounded-lg border border-navy/25 bg-surface px-3 sm:px-4 py-3 text-xs sm:text-sm text-foreground">
+        <ShieldCheck className="h-5 w-5 shrink-0 text-navy mt-0.5" />
         <p>{LOCAL_CALCULATOR_NOTE}</p>
       </div>
       <div className="rounded-2xl border border-border bg-surface-elevated shadow-sm overflow-hidden">

@@ -29,10 +29,10 @@ export default function PageHeader({
         className="object-cover object-center scale-105"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-r from-[#1a3312]/92 via-navy/88 to-[#2d5018]/90"
+        className="absolute inset-0 bg-gradient-to-r from-navy/90 via-[#3d9440]/82 to-gold-dark/88"
         aria-hidden
       />
-      <div className="absolute inset-0 bg-black/25" aria-hidden />
+      <div className="absolute inset-0 bg-black/20" aria-hidden />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:py-10 md:py-14">
         {breadcrumbs && breadcrumbs.length > 0 && (

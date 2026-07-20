@@ -60,7 +60,7 @@ export default function ContactForm() {
       </div>
       <button
         type="submit"
-        className="flex items-center justify-center gap-2 w-full sm:w-auto rounded-lg bg-gold px-6 py-3 text-sm font-semibold text-white hover:bg-gold-light transition-colors min-h-11"
+        className="flex items-center justify-center gap-2 w-full sm:w-auto rounded-lg bg-navy px-6 py-3 text-sm font-semibold text-white hover:bg-navy-light transition-colors min-h-11"
       >
         <Send className="h-4 w-4" />
         Send Message

@@ -93,7 +93,7 @@ export default function HomeHero() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-20 lg:py-28 w-full">
         <div className="max-w-3xl flex flex-col gap-5 sm:gap-6">
-          <p className="text-gold font-semibold tracking-wide uppercase text-sm">
+          <p className="text-gold-light font-semibold tracking-wide uppercase text-sm">
             Germantown, MD · Maryland & DMV Area
           </p>
 
@@ -108,7 +108,7 @@ export default function HomeHero() {
               aria-live="polite"
             >
               {slide.main}{" "}
-              <span className="text-gold">{slide.accent}</span>
+              <span className="text-gold-light">{slide.accent}</span>
             </h1>
           </div>
 
@@ -120,7 +120,7 @@ export default function HomeHero() {
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link
               href="/services"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3.5 text-sm font-semibold text-white hover:bg-gold-light transition-colors shadow-lg w-full sm:w-auto min-h-11"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-white hover:bg-navy-light transition-colors shadow-lg w-full sm:w-auto min-h-11"
             >
               Our Services
               <ArrowRight className="h-4 w-4" />
@@ -167,7 +167,7 @@ export default function HomeHero() {
             aria-current={i === index}
             onClick={() => goTo(i)}
             className={`h-2.5 rounded-full transition-all duration-300 ${
-              i === index ? "w-8 bg-gold" : "w-2.5 bg-white/50 hover:bg-white/80"
+              i === index ? "w-8 bg-gold-light" : "w-2.5 bg-white/50 hover:bg-white/80"
             }`}
           />
         ))}
