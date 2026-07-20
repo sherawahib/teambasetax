@@ -48,10 +48,10 @@ export default function FooterParallaxBackground() {
         ref={imgRef}
         src="/images/footer-bg.png"
         alt=""
-        className="absolute left-0 w-full h-[130%] -top-[15%] object-cover object-bottom pointer-events-none select-none motion-reduce:transform-none will-change-transform"
+        className="absolute left-0 w-full h-[130%] -top-[15%] object-cover object-center pointer-events-none select-none motion-reduce:transform-none will-change-transform"
         draggable={false}
       />
-      <div className="absolute inset-0 bg-black/75" />
+      <div className="absolute inset-0 bg-black/80" />
     </div>
   );
 }
