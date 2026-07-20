@@ -2,106 +2,41 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, BadgeCheck, ChevronLeft, ChevronRight, LockKeyhole } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const SLIDES = [
   {
     src: "/images/hero/slide-1.png",
     alt: "Professional tax preparation with digital tax tools",
+    eyebrow: "Individual & Business Tax Services",
     main: "Smart Tax",
     accent: "Solutions",
+    description:
+      "Strategic tax preparation designed to protect your income, reduce surprises, and keep every filing accurate.",
   },
   {
     src: "/images/hero/slide-2.png",
     alt: "Corporate tax planning and financial analysis",
+    eyebrow: "Guidance Built Around You",
     main: "Personalized",
     accent: "Service",
+    description:
+      "One-on-one support and practical financial guidance tailored to your goals, business, and family.",
   },
   {
     src: "/images/hero/slide-3.png",
     alt: "Tax planning with coins and city skyline",
+    eyebrow: "Careful Review. Confident Filing.",
     main: "Guaranteed",
     accent: "Accuracy",
+    description:
+      "Thorough preparation and a detail-focused review process help ensure your return is complete and dependable.",
   },
 ];
 
 const AUTO_MS = 5000;
 const TRANSITION_MS = 800;
-
-function SliderNavButton({
-  direction,
-  onClick,
-}: {
-  direction: "prev" | "next";
-  onClick: () => void;
-}) {
-  const isPrev = direction === "prev";
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={isPrev ? "Previous slide" : "Next slide"}
-      className={`group/nav relative z-20 hidden sm:flex items-center gap-0 overflow-hidden rounded-full border border-white/25 bg-white/10 text-white shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-300 hover:border-gold-light/60 hover:bg-navy/90 hover:shadow-[0_12px_40px_rgba(47,122,40,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-black/40 active:scale-95 ${
-        isPrev ? "pl-1.5 pr-1.5 hover:pr-4" : "pl-1.5 pr-1.5 hover:pl-4"
-      }`}
-    >
-      {/* Soft glow ring */}
-      <span
-        className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover/nav:opacity-100"
-        style={{
-          background:
-            "radial-gradient(circle at center, rgba(99,194,85,0.35), transparent 70%)",
-        }}
-        aria-hidden
-      />
-
-      {isPrev ? (
-        <>
-          <span className="relative flex h-12 w-12 items-center justify-center">
-            <span className="absolute inset-1 rounded-full bg-white/10 transition-transform duration-300 group-hover/nav:-translate-x-0.5 group-hover/nav:bg-gold-light/20" />
-            <ChevronLeft className="relative h-6 w-6 transition-transform duration-300 group-hover/nav:-translate-x-1" />
-          </span>
-          <span className="relative max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.18em] opacity-0 transition-all duration-300 group-hover/nav:max-w-[4.5rem] group-hover/nav:opacity-100 group-hover/nav:pr-3">
-            Prev
-          </span>
-        </>
-      ) : (
-        <>
-          <span className="relative max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.18em] opacity-0 transition-all duration-300 group-hover/nav:max-w-[4.5rem] group-hover/nav:opacity-100 group-hover/nav:pl-3">
-            Next
-          </span>
-          <span className="relative flex h-12 w-12 items-center justify-center">
-            <span className="absolute inset-1 rounded-full bg-white/10 transition-transform duration-300 group-hover/nav:translate-x-0.5 group-hover/nav:bg-gold-light/20" />
-            <ChevronRight className="relative h-6 w-6 transition-transform duration-300 group-hover/nav:translate-x-1" />
-          </span>
-        </>
-      )}
-    </button>
-  );
-}
-
-function MobileNavButton({
-  direction,
-  onClick,
-}: {
-  direction: "prev" | "next";
-  onClick: () => void;
-}) {
-  const isPrev = direction === "prev";
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={isPrev ? "Previous slide" : "Next slide"}
-      className="sm:hidden relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white shadow-lg backdrop-blur-md transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
-    >
-      <span className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-light/25 to-transparent opacity-80" aria-hidden />
-      {isPrev ? <ChevronLeft className="relative h-5 w-5" /> : <ChevronRight className="relative h-5 w-5" />}
-    </button>
-  );
-}
 
 export default function HomeHero() {
   const [index, setIndex] = useState(0);
@@ -136,7 +71,7 @@ export default function HomeHero() {
 
   return (
     <section
-      className="relative w-full overflow-hidden text-white flex items-center aspect-[3/2] min-h-[280px] max-h-[min(70vh,720px)] sm:min-h-[320px] md:max-h-[min(75vh,780px)]"
+      className="relative flex min-h-[620px] w-full items-center overflow-hidden bg-[#071008] text-white sm:min-h-[640px] lg:h-[clamp(640px,76vh,780px)]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
@@ -153,113 +88,172 @@ export default function HomeHero() {
           style={{ transitionDuration: `${TRANSITION_MS}ms` }}
           aria-hidden={i !== index}
         >
+          {/* Blurred ambient layer fills wide screens without exposing empty bands. */}
           <Image
             src={item.src}
-            alt={item.alt}
+            alt=""
             fill
             priority={i === 0}
             sizes="100vw"
-            className="object-cover object-center"
+            className="scale-110 object-cover object-center opacity-35 blur-xl"
           />
+
+          {/* Primary artwork is always fully visible and never cropped. */}
+          <div className="absolute inset-y-0 right-0 w-full opacity-70 sm:w-[88%] lg:w-[68%] lg:opacity-100">
+            <Image
+              src={item.src}
+              alt={item.alt}
+              fill
+              priority={i === 0}
+              sizes="(min-width: 1024px) 68vw, 100vw"
+              className="object-contain object-right"
+            />
+          </div>
         </div>
       ))}
 
-      <div className="absolute inset-0 z-[2] bg-black/55" aria-hidden />
       <div
-        className="absolute inset-0 z-[2] bg-gradient-to-r from-black/70 via-black/40 to-black/50"
+        className="absolute inset-0 z-[2] bg-gradient-to-r from-[#061007] via-[#08120a]/95 43% to-[#08120a]/15 82%"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 z-[2] bg-gradient-to-t from-black/70 via-transparent to-black/25"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 z-[2] opacity-[0.07]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+        }}
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:py-14 md:py-16 lg:py-20 w-full">
-        <div className="max-w-3xl flex flex-col gap-5 sm:gap-6">
-          <p className="text-gold-light font-semibold tracking-wide uppercase text-sm">
-            Germantown, MD · Maryland & DMV Area
-          </p>
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-28 pt-20 sm:px-8 sm:pb-28 lg:px-10 lg:pb-24 lg:pt-24">
+        <div className="flex max-w-2xl flex-col">
+          <div
+            className={`mb-6 transition-all duration-500 ${
+              textVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+            }`}
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold-light/30 bg-gold-light/10 px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.17em] text-gold-light backdrop-blur-md sm:text-xs">
+              <BadgeCheck className="h-4 w-4" />
+              {slide.eyebrow}
+            </span>
+          </div>
 
-          <div className="min-h-[2.75rem] sm:min-h-[3.25rem] md:min-h-[4rem] lg:min-h-[4.75rem] flex items-center overflow-hidden">
+          <div className="flex min-h-[7.5rem] items-center overflow-hidden sm:min-h-[9rem] lg:min-h-[10.5rem]">
             <h1
-              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight transition-all ease-in-out motion-reduce:transition-none drop-shadow-md ${
+              className={`text-5xl font-bold leading-[0.98] tracking-[-0.045em] transition-all ease-out motion-reduce:transition-none sm:text-6xl lg:text-7xl ${
                 textVisible
-                  ? "opacity-100 translate-y-0 blur-0"
-                  : "opacity-0 translate-y-6 blur-[2px]"
+                  ? "translate-y-0 opacity-100 blur-0"
+                  : "translate-y-8 opacity-0 blur-[3px]"
               }`}
               style={{ transitionDuration: `${TRANSITION_MS}ms` }}
               aria-live="polite"
             >
-              {slide.main}{" "}
-              <span className="text-gold-light">{slide.accent}</span>
+              <span className="block text-white">{slide.main}</span>
+              <span className="block bg-gradient-to-r from-gold-light to-[#a7e89b] bg-clip-text text-transparent">
+                {slide.accent}
+              </span>
             </h1>
           </div>
 
-          <p className="text-lg text-white/95 leading-relaxed max-w-2xl drop-shadow-sm">
-            Complete individual and business tax services. Thorough, accurate tax preparation with transparent pricing
-            and personalized consultations.
+          <p
+            className={`mt-5 max-w-xl text-base leading-7 text-white/[0.72] transition-all delay-100 duration-500 sm:text-lg sm:leading-8 ${
+              textVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+            }`}
+          >
+            {slide.description}
           </p>
 
-          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div
+            className={`mt-8 flex flex-col gap-3 transition-all delay-150 duration-500 sm:flex-row ${
+              textVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+            }`}
+          >
             <Link
               href="/services"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-white hover:bg-navy-light transition-colors shadow-lg w-full sm:w-auto min-h-11"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold-light px-6 py-3 text-sm font-bold text-[#112413] shadow-[0_12px_35px_rgba(99,194,85,0.3)] transition-all hover:-translate-y-0.5 hover:bg-white sm:w-auto"
             >
-              Our Services
-              <ChevronRight className="h-4 w-4" />
+              Explore Our Services
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/contact"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/40 px-6 py-3.5 text-sm font-semibold hover:bg-white/10 transition-colors w-full sm:w-auto min-h-11"
+              href="/resources/client-portal"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/25 bg-white/[0.08] px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-white/45 hover:bg-white/15 sm:w-auto"
             >
-              Contact Us
+              <LockKeyhole className="h-4 w-4 text-gold-light" />
+              Secure Client Portal
             </Link>
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-white/55">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_8px_rgba(99,194,85,0.8)]" />
+              Transparent pricing
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_8px_rgba(99,194,85,0.8)]" />
+              Personalized consultations
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Advanced side nav */}
-      <div className="absolute inset-y-0 left-0 z-20 flex items-center pl-3 sm:pl-5 md:pl-8">
-        <SliderNavButton direction="prev" onClick={prev} />
-        <MobileNavButton direction="prev" onClick={prev} />
-      </div>
-      <div className="absolute inset-y-0 right-0 z-20 flex items-center pr-3 sm:pr-5 md:pr-8">
-        <SliderNavButton direction="next" onClick={next} />
-        <MobileNavButton direction="next" onClick={next} />
-      </div>
+      {/* Professional control dock */}
+      <div className="absolute inset-x-0 bottom-5 z-20 px-5 sm:px-8 lg:bottom-7 lg:px-10">
+        <div className="mx-auto flex max-w-7xl items-end justify-between gap-5">
+          <div className="hidden items-center gap-2 sm:flex">
+            {SLIDES.map((item, i) => {
+              const active = i === index;
+              return (
+                <button
+                  key={item.src}
+                  type="button"
+                  onClick={() => goTo(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  aria-current={active}
+                  className="relative h-1.5 w-14 overflow-hidden rounded-full bg-white/20 transition-colors hover:bg-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light"
+                >
+                  {active && (
+                    <span
+                      key={progressKey}
+                      className={`absolute inset-y-0 left-0 bg-gold-light ${
+                        paused ? "w-full" : "hero-progress-bar motion-reduce:w-full"
+                      }`}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-      {/* Advanced bottom controls: numbered pills + autoplay progress */}
-      <div className="absolute bottom-5 sm:bottom-7 left-0 right-0 z-20 flex flex-col items-center gap-3 px-4">
-        <div className="flex items-center gap-2 rounded-full border border-white/20 bg-black/35 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md">
-          {SLIDES.map((item, i) => {
-            const active = i === index;
-            return (
-              <button
-                key={item.src}
-                type="button"
-                aria-label={`Go to slide ${i + 1}`}
-                aria-current={active}
-                onClick={() => goTo(i)}
-                className={`group/dot relative overflow-hidden rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light ${
-                  active
-                    ? "h-10 min-w-[2.75rem] bg-navy px-3.5 text-white shadow-[inset_0_0_0_1px_rgba(99,194,85,0.55)]"
-                    : "h-10 w-10 bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                }`}
-              >
-                {active && !paused && (
-                  <span
-                    key={progressKey}
-                    className="absolute inset-y-0 left-0 bg-gold-light/30 hero-progress-bar motion-reduce:hidden"
-                    aria-hidden
-                  />
-                )}
-                <span className="relative z-[1] text-xs font-bold tracking-wide">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-              </button>
-            );
-          })}
+          <div className="ml-auto flex items-center overflow-hidden rounded-2xl border border-white/20 bg-black/35 shadow-[0_15px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+            <div className="flex h-12 min-w-24 items-center justify-center gap-1 border-r border-white/15 px-4 text-xs font-semibold tracking-[0.12em]">
+              <span className="text-gold-light">{String(index + 1).padStart(2, "0")}</span>
+              <span className="text-white/30">/</span>
+              <span className="text-white/55">{String(SLIDES.length).padStart(2, "0")}</span>
+            </div>
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Previous slide"
+              className="group flex h-12 w-12 items-center justify-center border-r border-white/15 text-white/75 transition-all hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold-light"
+            >
+              <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next slide"
+              className="group flex h-12 w-12 items-center justify-center text-white/75 transition-all hover:bg-gold-light hover:text-[#112413] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold-light"
+            >
+              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
         </div>
-
-        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/55">
-          Slide {index + 1} / {SLIDES.length}
-        </p>
       </div>
     </section>
   );

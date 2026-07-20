@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Calculator,
   CheckCircle2,
+  ChevronRight,
   CreditCard,
   LockKeyhole,
   Mail,
@@ -54,11 +55,11 @@ function FooterLink({
   external?: boolean;
 }) {
   const className =
-    "group inline-flex min-h-9 items-center gap-2 text-sm text-white/75 transition-colors hover:text-gold-light";
+    "group flex min-h-10 w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] leading-5 text-white/70 transition-all duration-200 hover:bg-white/10 hover:text-white";
   const content = (
     <>
-      <span className="h-1.5 w-1.5 rounded-full bg-white/25 transition-all group-hover:bg-gold-light group-hover:shadow-[0_0_10px_rgba(99,194,85,0.8)]" />
-      <span>{label}</span>
+      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-gold-light/65 transition-transform group-hover:translate-x-0.5 group-hover:text-gold-light" />
+      <span className="flex-1">{label}</span>
       {external && (
         <ArrowUpRight className="h-3.5 w-3.5 opacity-60 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
       )}
@@ -124,8 +125,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-12">
-          <div className="rounded-2xl border border-white/15 bg-black/25 p-6 backdrop-blur-md lg:col-span-4">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-12">
+          <div className="min-w-0 rounded-2xl border border-white/15 bg-black/25 p-6 backdrop-blur-md xl:col-span-3">
             <Logo variant="footer" onDark />
             <p className="mt-5 max-w-sm text-sm leading-7 text-white/70">
               Smart tax solutions, personalized service, and dependable accuracy for individuals and businesses.
@@ -164,12 +165,17 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/15 bg-black/25 p-6 backdrop-blur-md lg:col-span-2">
-            <h3 className="flex items-center gap-2 font-semibold text-white">
-              <span className="h-5 w-1 rounded-full bg-gold-light" />
-              Services
+          <div className="min-w-0 rounded-2xl border border-white/15 bg-black/25 p-5 backdrop-blur-md sm:p-6 xl:col-span-3">
+            <h3 className="flex items-center justify-between gap-3 border-b border-white/10 pb-4 font-semibold text-white">
+              <span className="flex items-center gap-2.5">
+                <span className="h-5 w-1 rounded-full bg-gold-light" />
+                Services
+              </span>
+              <span className="rounded-full bg-white/[0.08] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/45">
+                Explore
+              </span>
             </h3>
-            <ul className="mt-5 space-y-1">
+            <ul className="mt-3 space-y-0.5">
               {services.flatMap((s) =>
                 s.children
                   ? s.children.filter((c) => c.href).map((c) => (
@@ -188,12 +194,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-white/15 bg-black/25 p-6 backdrop-blur-md lg:col-span-2">
-            <h3 className="flex items-center gap-2 font-semibold text-white">
-              <span className="h-5 w-1 rounded-full bg-gold-light" />
-              Resources
+          <div className="min-w-0 rounded-2xl border border-white/15 bg-black/25 p-5 backdrop-blur-md sm:p-6 xl:col-span-3">
+            <h3 className="flex items-center justify-between gap-3 border-b border-white/10 pb-4 font-semibold text-white">
+              <span className="flex items-center gap-2.5">
+                <span className="h-5 w-1 rounded-full bg-gold-light" />
+                Resources
+              </span>
+              <span className="rounded-full bg-white/[0.08] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/45">
+                Tools
+              </span>
             </h3>
-            <ul className="mt-5 space-y-1">
+            <ul className="mt-3 space-y-0.5">
               {resourceLinks.map((resource) => (
                 <li key={resource.label}>
                   <FooterLink {...resource} />
@@ -210,7 +221,7 @@ export default function Footer() {
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-white/15 bg-gradient-to-br from-white/12 to-black/25 p-6 backdrop-blur-md lg:col-span-4">
+          <div className="min-w-0 rounded-2xl border border-white/15 bg-gradient-to-br from-white/12 to-black/25 p-6 backdrop-blur-md xl:col-span-3">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-light">Stay Informed</p>
