@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
+import AccessibilityWidget from "@/components/AccessibilityWidget";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import SkipToContent from "@/components/SkipToContent";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,10 +45,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full scroll-smooth`}>
-      <body className="min-h-full flex flex-col antialiased overflow-x-hidden">
+      <body className="flex min-h-full flex-col overflow-x-hidden antialiased">
+        <SkipToContent />
         <Header />
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1" tabIndex={-1}>
+          {children}
+        </main>
         <Footer />
+        <AccessibilityWidget />
       </body>
     </html>
   );

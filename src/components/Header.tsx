@@ -160,7 +160,7 @@ export default function Header() {
             <Logo variant="default" />
           </div>
 
-          <nav className="hidden lg:flex items-center gap-1 shrink-0">
+          <nav className="hidden lg:flex items-center gap-1 shrink-0" aria-label="Primary">
             {navigation.map((item) =>
               item.children ? (
                 <div
@@ -203,15 +203,19 @@ export default function Header() {
           <button
             className="lg:hidden flex items-center justify-center rounded-lg p-3 text-navy hover:bg-white/60 min-h-11 min-w-11 shrink-0"
             onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
+            aria-controls="mobile-primary-nav"
           >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
         {mobileOpen && !scrolled && (
-          <div className="lg:hidden border-t border-border bg-white max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain shadow-lg rounded-b-2xl">
+          <div
+            id="mobile-primary-nav"
+            className="lg:hidden border-t border-border bg-white max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain shadow-lg rounded-b-2xl"
+          >
             <div className="md:hidden border-b border-border bg-surface px-4 py-3 space-y-2 text-sm">
               <a href={`mailto:${contact.email}`} className="flex items-center gap-2 text-foreground hover:text-navy min-h-11">
                 <Mail className="h-4 w-4 shrink-0" />
@@ -256,7 +260,10 @@ export default function Header() {
         )}
 
         {mobileOpen && scrolled && (
-          <div className="lg:hidden border-t border-white/40 bg-white/90 backdrop-blur-xl max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-b-2xl">
+          <div
+            id="mobile-primary-nav"
+            className="lg:hidden border-t border-white/40 bg-white/90 backdrop-blur-xl max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-b-2xl"
+          >
             <div className="border-b border-border/60 bg-white/60 px-4 py-3 text-sm">
               <a href={`mailto:${contact.email}`} className="flex min-h-11 items-center gap-2 text-foreground hover:text-navy">
                 <Mail className="h-4 w-4 shrink-0" />

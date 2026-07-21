@@ -30,11 +30,95 @@
   --font-sans: var(--font-inter);
 }
 
+:root {
+  --a11y-text-scale: 1;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
   overflow-x: hidden;
+  font-size: calc(1rem * var(--a11y-text-scale));
+}
+
+/* Skip link — visible only on keyboard focus */
+.skip-to-content {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: 0.5rem;
+  background: var(--navy);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 10px 30px rgba(20, 38, 22, 0.25);
+}
+
+.skip-to-content:focus {
+  transform: translateY(0);
+  outline: 3px solid var(--gold-light);
+  outline-offset: 2px;
+}
+
+/* Global keyboard focus — do not remove without replacement */
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Accessibility widget modes */
+html.a11y-high-contrast {
+  --background: #ffffff;
+  --foreground: #000000;
+  --navy: #005a00;
+  --navy-light: #007000;
+  --gold: #006600;
+  --gold-light: #008000;
+  --gold-dark: #004400;
+  --muted: #1a1a1a;
+  --border: #000000;
+  --surface: #f0f0f0;
+  --surface-elevated: #ffffff;
+}
+
+html.a11y-high-contrast body {
+  background: #fff;
+  color: #000;
+}
+
+html.a11y-underline-links a:not(.skip-to-content) {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+html.a11y-readable-font body,
+html.a11y-readable-font button,
+html.a11y-readable-font input,
+html.a11y-readable-font select,
+html.a11y-readable-font textarea {
+  font-family: Verdana, "Segoe UI", Tahoma, system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  word-spacing: 0.05em;
+  line-height: 1.7;
+}
+
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 .prose-content p {
@@ -141,6 +225,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .testimonials-track {
     animation: none;
   }
@@ -149,6 +237,26 @@ body {
   .animate-fade-in-up {
     animation: none;
   }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 input:not([type="checkbox"]):not([type="radio"]),

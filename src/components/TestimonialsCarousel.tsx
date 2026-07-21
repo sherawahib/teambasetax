@@ -97,9 +97,13 @@ export default function TestimonialsCarousel() {
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-surface to-transparent z-10" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-surface to-transparent z-10" />
 
-        <div className="overflow-hidden">
+        <div
+          className="overflow-x-auto overflow-y-hidden"
+          role="region"
+          aria-label="Client review carousel"
+        >
           <div
-            className="flex gap-4 sm:gap-5 w-max testimonials-track group-hover:[animation-play-state:paused]"
+            className="flex w-max gap-4 sm:gap-5 testimonials-track group-hover:[animation-play-state:paused] motion-reduce:[animation:none]"
             style={{ animationDuration: `${durationSeconds}s` }}
           >
             {loopItems.map((t, i) => (

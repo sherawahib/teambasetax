@@ -43,6 +43,7 @@ export default function HomeHero() {
   const [textPhase, setTextPhase] = useState<"in" | "out">("in");
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
+  const [motionOff, setMotionOff] = useState(false);
 
   const goTo = useCallback((next: number) => {
     setTextPhase("out");
@@ -57,10 +58,27 @@ export default function HomeHero() {
   const prev = useCallback(() => goTo(index - 1), [goTo, index]);
 
   useEffect(() => {
-    if (paused) return;
+    const syncMotion = () => {
+      const prefersReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const widgetReduce = document.documentElement.classList.contains("a11y-reduce-motion");
+      setMotionOff(prefersReduce || widgetReduce);
+    };
+    syncMotion();
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    mq.addEventListener("change", syncMotion);
+    const obs = new MutationObserver(syncMotion);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      mq.removeEventListener("change", syncMotion);
+      obs.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (paused || motionOff) return;
     const timer = window.setInterval(next, AUTO_MS);
     return () => window.clearInterval(timer);
-  }, [next, paused]);
+  }, [next, paused, motionOff]);
 
   const slide = SLIDES[index];
   const textVisible = textPhase === "in";
@@ -220,7 +238,7 @@ export default function HomeHero() {
                     <span
                       key={progressKey}
                       className={`absolute inset-y-0 left-0 bg-gold-light ${
-                        paused ? "w-full" : "hero-progress-bar motion-reduce:w-full"
+                        paused || motionOff ? "w-full" : "hero-progress-bar motion-reduce:w-full"
                       }`}
                     />
                   )}
