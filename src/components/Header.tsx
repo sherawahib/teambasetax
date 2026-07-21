@@ -79,7 +79,7 @@ export default function Header() {
       <header
         className={`z-50 text-foreground transition-all duration-300 ease-out ${
           scrolled
-            ? "fixed top-3 left-3 right-3 md:left-5 md:right-5 lg:left-8 lg:right-8 rounded-2xl border border-white/50 bg-white/70 shadow-[0_12px_40px_rgba(20,38,22,0.18)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/55"
+            ? "fixed top-2 left-2 right-2 sm:top-3 sm:left-3 sm:right-3 md:left-5 md:right-5 lg:left-8 lg:right-8 rounded-2xl border border-white/50 bg-white/70 shadow-[0_12px_40px_rgba(20,38,22,0.18)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/55"
             : "sticky top-0 bg-surface-elevated border-b border-border shadow-md shadow-navy/10"
         }`}
       >
@@ -156,7 +156,7 @@ export default function Header() {
             scrolled ? "py-2.5 bg-transparent" : "py-3 bg-surface-elevated"
           }`}
         >
-          <div className="flex items-center min-w-0 flex-1 overflow-hidden">
+          <div className="flex min-w-0 flex-1 items-center">
             <Logo variant="default" />
           </div>
 
@@ -257,6 +257,16 @@ export default function Header() {
 
         {mobileOpen && scrolled && (
           <div className="lg:hidden border-t border-white/40 bg-white/90 backdrop-blur-xl max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-b-2xl">
+            <div className="border-b border-border/60 bg-white/60 px-4 py-3 text-sm">
+              <a href={`mailto:${contact.email}`} className="flex min-h-11 items-center gap-2 text-foreground hover:text-navy">
+                <Mail className="h-4 w-4 shrink-0" />
+                <span className="break-all">{contact.email}</span>
+              </a>
+              <a href={contact.phoneHref} className="flex min-h-11 items-center gap-2 text-foreground hover:text-navy">
+                <Phone className="h-4 w-4 shrink-0" />
+                {contact.phone}
+              </a>
+            </div>
             {navigation.map((item) =>
               item.children ? (
                 <div key={item.label} className="border-b border-border/60">

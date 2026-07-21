@@ -31,17 +31,19 @@ export default function FinancialCalculatorsPage() {
             advice.
           </p>
 
-          <nav className="mb-12 flex flex-wrap gap-2" aria-label="Calculator categories">
-            <span className="text-sm font-medium text-muted mr-2 self-center">Jump to:</span>
-            {categories.map((cat) => (
-              <a
-                key={cat.id}
-                href={`#${cat.id}`}
-                className="rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:border-gold hover:text-gold transition-colors"
-              >
-                {cat.label}
-              </a>
-            ))}
+          <nav className="mb-10" aria-label="Calculator categories">
+            <span className="mb-2 block text-sm font-medium text-muted">Jump to:</span>
+            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:px-0">
+              {categories.map((cat) => (
+                <a
+                  key={cat.id}
+                  href={`#${cat.id}`}
+                  className="min-h-11 shrink-0 rounded-full border border-border bg-surface-elevated px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-gold hover:text-gold sm:min-h-0 sm:py-1.5"
+                >
+                  {cat.label}
+                </a>
+              ))}
+            </div>
           </nav>
 
           <div className="space-y-14">
@@ -53,7 +55,7 @@ export default function FinancialCalculatorsPage() {
                     <Link
                       key={calc.slug}
                       href={`/resources/financial-calculators/${calc.slug}`}
-                      className="group rounded-xl border border-border bg-surface-elevated p-6 hover:border-gold hover:shadow-lg transition-all"
+                      className="group rounded-xl border border-border bg-surface-elevated p-4 transition-all hover:border-gold hover:shadow-lg sm:p-6"
                     >
                       <Calculator className="h-7 w-7 text-gold mb-4" />
                       <h3 className="font-semibold text-foreground group-hover:text-gold transition-colors">{calc.title}</h3>

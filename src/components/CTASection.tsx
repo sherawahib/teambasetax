@@ -26,10 +26,10 @@ export default function CTASection({
         {subtitle && (
           <p className="mt-3 text-muted max-w-2xl mx-auto text-sm sm:text-base">{subtitle}</p>
         )}
-        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-none mx-auto">
+        <div className="mx-auto mt-6 flex max-w-md flex-col items-stretch justify-center gap-3 sm:mt-8 sm:gap-4 md:max-w-none md:flex-row md:items-center">
           <Link
             href={primaryHref}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-white hover:bg-navy-light transition-colors shadow-lg w-full sm:w-auto min-h-11"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-navy-light md:w-auto"
           >
             {primaryLabel}
             <ArrowRight className="h-4 w-4" />
@@ -37,14 +37,14 @@ export default function CTASection({
           {secondaryHref && secondaryLabel && (
             <Link
               href={secondaryHref}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-navy/30 bg-white px-6 py-3.5 text-sm font-semibold text-navy hover:bg-surface-elevated transition-colors w-full sm:w-auto min-h-11"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-navy/30 bg-white px-6 py-3.5 text-sm font-semibold text-navy transition-colors hover:bg-surface-elevated md:w-auto"
             >
               {secondaryLabel}
             </Link>
           )}
           <a
             href={contact.phoneHref}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-navy/30 bg-white px-6 py-3.5 text-sm font-semibold text-navy hover:bg-surface-elevated transition-colors w-full sm:w-auto min-h-11"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-navy/30 bg-white px-6 py-3.5 text-sm font-semibold text-navy transition-colors hover:bg-surface-elevated md:w-auto"
           >
             <Phone className="h-4 w-4 shrink-0" />
             {contact.phone}

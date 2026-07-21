@@ -192,7 +192,22 @@ export function DocumentsView({ onRefresh }: PortalViewProps) {
       </PortalCard>
 
       <PortalCard title="Your Documents">
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="space-y-3 md:hidden">
+          {data.documents.map((doc) => (
+            <div key={doc.id} className="rounded-lg border border-border p-3">
+              <div className="flex min-w-0 items-start gap-2">
+                <FileText className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-foreground">{doc.name}</p>
+                  <p className="mt-0.5 text-xs text-muted">{formatFileSize(doc.size)} · {doc.category}</p>
+                </div>
+                <StatusBadge status={doc.status} />
+              </div>
+              <p className="mt-2 text-xs text-muted">{doc.taxYear} · Uploaded {formatDate(doc.uploadedAt)}</p>
+            </div>
+          ))}
+        </div>
+        <div className="-mx-4 hidden overflow-x-auto px-4 md:block sm:mx-0 sm:px-0">
           <table className="w-full min-w-[540px] text-sm">
             <thead>
               <tr className="text-left text-muted border-b border-border">
@@ -207,10 +222,10 @@ export function DocumentsView({ onRefresh }: PortalViewProps) {
               {data.documents.map((doc) => (
                 <tr key={doc.id} className="border-b border-border last:border-0">
                   <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
                       <FileText className="h-4 w-4 text-gold shrink-0" />
-                      <span className="font-medium text-foreground">{doc.name}</span>
-                      <span className="text-xs text-muted">({formatFileSize(doc.size)})</span>
+                      <span className="max-w-48 truncate font-medium text-foreground">{doc.name}</span>
+                      <span className="shrink-0 text-xs text-muted">({formatFileSize(doc.size)})</span>
                     </div>
                   </td>
                   <td className="py-3 text-muted">{doc.category}</td>
@@ -423,7 +438,7 @@ export function BillingView() {
                 <p className="font-medium text-foreground">{inv.description}</p>
                 <p className="text-sm text-muted">Due {formatDate(inv.dueDate)}</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <span className="font-bold text-foreground">${inv.amount.toFixed(2)}</span>
                 <StatusBadge status={inv.status} />
                 {(inv.status === "due" || inv.status === "pending") && (
@@ -431,7 +446,7 @@ export function BillingView() {
                     href={externalLinks.makePayment}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gold font-medium hover:underline inline-flex items-center gap-1"
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-1 rounded-lg border border-gold/30 px-3 text-sm font-medium text-gold hover:bg-gold/5 sm:min-h-0 sm:w-auto sm:border-0 sm:px-0 sm:hover:underline"
                   >
                     Pay <ExternalLink className="h-3.5 w-3.5" />
                   </a>

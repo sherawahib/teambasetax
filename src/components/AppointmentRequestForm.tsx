@@ -129,7 +129,7 @@ const DOCUMENT_CHECKLIST = [
 ];
 
 const inputClass =
-  "w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold bg-surface-elevated";
+  "min-h-11 w-full min-w-0 rounded-lg border border-border bg-surface-elevated px-4 py-2.5 text-base focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold sm:text-sm";
 const labelClass = "block text-sm font-medium text-slate-700 mb-1.5";
 const errorClass = "text-xs text-red-600 mt-1";
 
@@ -580,7 +580,7 @@ export default function AppointmentRequestForm() {
                 </select>
               </div>
               <div>
-                <label htmlFor="priorPreparer" className={labelClass}>Who prepared last year's return?</label>
+                <label htmlFor="priorPreparer" className={labelClass}>Who prepared last year&apos;s return?</label>
                 <input id="priorPreparer" value={form.priorPreparer} onChange={(e) => updateField("priorPreparer", e.target.value)} placeholder="Self, H&R Block, prior CPA, etc." className={inputClass} />
               </div>
               <div>

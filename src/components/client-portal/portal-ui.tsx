@@ -55,9 +55,9 @@ export function PortalCard({
 
 export function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
-    <div className="rounded-xl border border-border bg-surface-elevated p-4 sm:p-5 shadow-sm">
-      <p className="text-xs sm:text-sm text-muted font-medium">{label}</p>
-      <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1">{value}</p>
+    <div className="min-w-0 rounded-xl border border-border bg-surface-elevated p-3 shadow-sm sm:p-5">
+      <p className="line-clamp-2 text-xs font-medium text-muted sm:text-sm">{label}</p>
+      <p className="mt-1 break-words text-xl font-bold text-foreground sm:text-3xl">{value}</p>
       {sub && <p className="text-xs text-muted mt-1">{sub}</p>}
     </div>
   );

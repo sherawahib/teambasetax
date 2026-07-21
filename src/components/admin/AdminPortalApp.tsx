@@ -177,7 +177,7 @@ export default function AdminPortalApp() {
         </div>
       </aside>
 
-      <div className="flex-1 bg-surface p-4 sm:p-6 lg:p-8 overflow-x-hidden">{renderSection()}</div>
+      <div className="min-w-0 flex-1 overflow-x-hidden bg-surface p-4 sm:p-6 lg:p-8">{renderSection()}</div>
     </div>
   );
 }

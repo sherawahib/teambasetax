@@ -49,9 +49,9 @@ export function AdminDashboardView({ refreshKey }: ViewProps) {
           { label: "Documents", value: portal.documents.length },
           { label: "Unread Messages", value: unread },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-surface-elevated p-4 shadow-sm">
-            <p className="text-xs text-muted font-medium">{s.label}</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{s.value}</p>
+          <div key={s.label} className="min-w-0 rounded-xl border border-border bg-surface-elevated p-3 shadow-sm sm:p-4">
+            <p className="line-clamp-2 text-xs font-medium text-muted">{s.label}</p>
+            <p className="mt-1 break-words text-xl font-bold text-foreground sm:text-2xl">{s.value}</p>
           </div>
         ))}
       </div>
@@ -232,8 +232,28 @@ export function AdminDocumentsView({ onRefresh, refreshKey }: ViewProps) {
         <p className="text-sm text-muted mt-1">Review uploaded files and update review status.</p>
       </div>
       <AdminCard title="Document Library">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[520px] text-sm">
+        <div className="space-y-3 md:hidden">
+          {documents.map((doc) => (
+            <div key={doc.id} className="rounded-lg border border-border p-3">
+              <p className="break-words text-sm font-medium text-foreground">{doc.name}</p>
+              <p className="mt-1 text-xs text-muted">{doc.category}</p>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                <select
+                  value={doc.status}
+                  onChange={(e) => setStatus(doc.id, e.target.value)}
+                  className="min-h-11 rounded border border-border bg-surface-elevated px-2 py-1 text-base sm:text-sm"
+                >
+                  {["received", "reviewing", "approved", "needs-action"].map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <DeleteButton onClick={() => handleDelete(doc.id)} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="-mx-4 hidden overflow-x-auto px-4 md:block sm:mx-0 sm:px-0">
+          <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="text-left text-muted border-b border-border">
                 <th className="pb-2 font-medium">File</th>
@@ -446,12 +466,12 @@ export function AdminIrsLegalView({ onRefresh, refreshKey }: ViewProps) {
       <AdminCard title="IRS Notices">
         <div className="space-y-3">
           {notices.map((n) => (
-            <div key={n.id} className="p-3 rounded-lg border border-border flex justify-between gap-2">
-              <div>
+            <div key={n.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 sm:flex-row sm:justify-between">
+              <div className="min-w-0">
                 <p className="font-semibold text-sm">{n.noticeNumber}</p>
-                <p className="text-sm text-slate-600">{n.topic}</p>
+                <p className="break-words text-sm text-slate-600">{n.topic}</p>
               </div>
-              <div className="flex flex-col items-end gap-1">
+              <div className="flex shrink-0 items-center justify-between gap-2 sm:flex-col sm:items-end">
                 <StatusBadge status={n.status} />
                 <DeleteButton
                   onClick={async () => {
@@ -467,10 +487,10 @@ export function AdminIrsLegalView({ onRefresh, refreshKey }: ViewProps) {
       <AdminCard title="Legal Cases">
         <div className="space-y-3">
           {cases.map((c) => (
-            <div key={c.id} className="p-3 rounded-lg border border-border flex justify-between gap-2">
-              <div>
+            <div key={c.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 sm:flex-row sm:justify-between">
+              <div className="min-w-0">
                 <p className="font-semibold text-sm">{c.title}</p>
-                <p className="text-xs text-muted">
+                <p className="break-words text-xs text-muted">
                   {c.category} · {c.nextStep}
                 </p>
               </div>
@@ -514,11 +534,10 @@ export function AdminClientsView({ onRefresh, refreshKey }: ViewProps) {
           <ul className="space-y-2">
             {clients.map((c) => (
               <li key={c.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-border">
-                <div>
+                <div className="min-w-0">
                   <p className="font-medium text-sm">{c.name}</p>
-                  <p className="text-xs text-muted">
-                    {c.email} · {c.phone} · {c.accountType} · Since {c.clientSince}
-                  </p>
+                  <p className="break-all text-xs text-muted">{c.email}</p>
+                  <p className="text-xs text-muted">{c.phone} · {c.accountType} · Since {c.clientSince}</p>
                 </div>
                 {c.id !== "client-demo" && (
                   <DeleteButton onClick={() => handleDelete(c.id)} label="Remove Account" />

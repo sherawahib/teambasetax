@@ -54,7 +54,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-foreground">About TEAMBASED Tax Services</h2>
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">About TEAMBASED Tax Services</h2>
               <div className="mt-6 space-y-4 prose-content">
                 <h3 className="text-xl font-semibold text-foreground">Thorough, Accurate Tax Preparation</h3>
                 <p>
@@ -93,7 +93,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="space-y-6">
-              <div className="rounded-2xl bg-navy p-8 text-white">
+              <div className="rounded-2xl bg-navy p-5 text-white sm:p-8">
                 <Award className="h-10 w-10 text-gold mb-4" />
                 <p className="text-lg font-semibold">National Association of Tax Professionals Member</p>
                 <p className="text-white text-sm mt-2">
@@ -126,7 +126,7 @@ export default function HomePage() {
       <section className="py-10 md:py-16 bg-surface">
         <div className="mx-auto max-w-7xl px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground">Why Choose Us</h2>
+            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Why Choose Us</h2>
             <p className="text-muted mt-2 max-w-2xl mx-auto">
               Professional tax services built on trust, accuracy, and outstanding client care.
             </p>
@@ -135,7 +135,7 @@ export default function HomePage() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-2xl bg-surface-elevated p-8 shadow-sm border border-border hover:shadow-md transition-shadow"
+                className="rounded-2xl border border-border bg-surface-elevated p-5 shadow-sm transition-shadow hover:shadow-md sm:p-8"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gold/10 text-gold mb-4">
                   <feature.icon className="h-6 w-6" />
@@ -152,7 +152,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
             <div>
-              <h2 className="text-3xl font-bold text-foreground">Financial Calculators</h2>
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Financial Calculators</h2>
               <p className="text-muted mt-2">Self-help tools for tax planning, retirement, and mortgage analysis.</p>
             </div>
             <Link
@@ -213,11 +213,11 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-3xl font-bold text-foreground mb-6">Send Us an Email</h2>
+              <h2 className="mb-6 text-2xl font-bold text-foreground sm:text-3xl">Send Us an Email</h2>
               <ContactForm />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-foreground mb-6">Main Office</h2>
+              <h2 className="mb-6 text-2xl font-bold text-foreground sm:text-3xl">Main Office</h2>
               <div className="rounded-2xl border border-border overflow-hidden shadow-sm">
                 <OfficeMap embedded />
                 <div className="p-6 bg-surface">

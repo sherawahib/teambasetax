@@ -12,7 +12,7 @@ function formatDate(iso: string) {
 
 function ReviewCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <article className="flex-shrink-0 w-[300px] sm:w-[340px] md:w-[360px] rounded-2xl border border-border bg-surface-elevated p-5 sm:p-6 shadow-sm">
+    <article className="w-[min(300px,85vw)] flex-shrink-0 rounded-2xl border border-border bg-surface-elevated p-5 shadow-sm sm:w-[340px] sm:p-6 md:w-[360px]">
       <div className="flex items-center justify-between gap-2 mb-3">
         <StarRatingDisplay rating={testimonial.rating} size="md" />
         <span className="text-xs text-muted shrink-0">{formatDate(testimonial.createdAt)}</span>
@@ -58,7 +58,7 @@ export default function TestimonialsCarousel() {
           <div className="h-8 w-48 bg-slate-200 rounded animate-pulse mb-8" />
           <div className="flex gap-4 overflow-hidden">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="w-[340px] h-52 bg-slate-100 rounded-2xl animate-pulse shrink-0" />
+              <div key={i} className="h-52 w-[min(340px,85vw)] shrink-0 animate-pulse rounded-2xl bg-slate-100" />
             ))}
           </div>
         </div>

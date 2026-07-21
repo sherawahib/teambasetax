@@ -57,7 +57,7 @@ export function CalcField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           step={step}
-          className="w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+          className="min-h-11 w-full min-w-0 rounded-lg border border-border px-4 py-2.5 text-base focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold sm:text-sm"
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted">{suffix}</span>
@@ -71,7 +71,7 @@ export function CalcResult({ label, value, highlight }: { label: string; value: 
   return (
     <div className={`rounded-lg p-4 ${highlight ? "bg-gold/10 border border-gold/30" : "bg-surface border border-border"}`}>
       <p className="text-sm text-muted">{label}</p>
-      <p className={`text-xl font-bold mt-1 ${highlight ? "text-foreground" : "text-navy"}`}>{value}</p>
+      <p className={`mt-1 break-words text-lg font-bold tabular-nums sm:text-xl ${highlight ? "text-foreground" : "text-navy"}`}>{value}</p>
     </div>
   );
 }
@@ -98,7 +98,7 @@ export function CalcSelect({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold bg-surface-elevated"
+        className="min-h-11 w-full min-w-0 rounded-lg border border-border bg-surface-elevated px-4 py-2.5 text-base focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold sm:text-sm"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

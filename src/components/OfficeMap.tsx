@@ -49,7 +49,7 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
         center: [contact.mapCenter.lat, contact.mapCenter.lng],
         zoom: 17,
         zoomControl: false,
-        scrollWheelZoom: true,
+        scrollWheelZoom: false,
       });
 
       const baseLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -176,14 +176,14 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
 
   return (
     <div className={shellClass}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 bg-surface-elevated border-b border-border">
-        <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-col gap-2 border-b border-border bg-surface-elevated p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="-mx-1 flex max-w-full gap-1.5 overflow-x-auto px-1 pb-1 sm:mx-0 sm:pb-0">
           {MODES.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               type="button"
               onClick={() => setMode(id)}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs sm:text-sm font-medium transition-colors min-h-9 ${
+              className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors sm:min-h-9 sm:text-sm ${
                 mode === id
                   ? "bg-navy text-white"
                   : "bg-surface border border-border text-foreground hover:border-gold hover:text-gold"
@@ -246,7 +246,7 @@ export default function OfficeMap({ className = "", embedded = false }: Props) {
           <span>
             {mode === "streetview"
               ? "Drag to look around · Use arrows to explore the street"
-              : "Drag to pan · Scroll or use +/- to zoom · Powered by OpenStreetMap"}
+              : "Drag to pan · Pinch or use +/- to zoom · Powered by OpenStreetMap"}
           </span>
           <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="text-gold font-medium hover:underline shrink-0">
             Get Directions →

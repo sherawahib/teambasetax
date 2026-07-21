@@ -55,9 +55,9 @@ export default function ServicesPage() {
               filings, our services are designed to meet your unique demands.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
             {serviceCategories.map((category) => (
-              <div key={category.title} className="rounded-2xl border border-border bg-surface-elevated p-8 shadow-sm">
+              <div key={category.title} className="rounded-2xl border border-border bg-surface-elevated p-5 shadow-sm sm:p-8">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gold/10 text-gold mb-4">
                   <category.icon className="h-6 w-6" />
                 </div>

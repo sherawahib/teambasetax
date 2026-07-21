@@ -62,18 +62,17 @@ export default function HomeHero() {
     return () => window.clearInterval(timer);
   }, [next, paused]);
 
-  useEffect(() => {
-    if (!paused) setProgressKey((k) => k + 1);
-  }, [paused]);
-
   const slide = SLIDES[index];
   const textVisible = textPhase === "in";
 
   return (
     <section
-      className="relative flex min-h-[620px] w-full items-center overflow-hidden bg-[#071008] text-white sm:min-h-[640px] lg:h-[clamp(640px,76vh,780px)]"
+      className="relative flex min-h-[min(620px,100svh)] w-full items-center overflow-hidden bg-[#071008] text-white sm:min-h-[640px] lg:h-[clamp(640px,76vh,780px)]"
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseLeave={() => {
+        setPaused(false);
+        setProgressKey((k) => k + 1);
+      }}
       aria-roledescription="carousel"
       aria-label="Homepage banner"
     >
@@ -130,22 +129,22 @@ export default function HomeHero() {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-28 pt-20 sm:px-8 sm:pb-28 lg:px-10 lg:pb-24 lg:pt-24">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-24 pt-14 sm:px-8 sm:pb-28 sm:pt-20 lg:px-10 lg:pb-24 lg:pt-24">
         <div className="flex max-w-2xl flex-col">
           <div
             className={`mb-6 transition-all duration-500 ${
               textVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
             }`}
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-gold-light/30 bg-gold-light/10 px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.17em] text-gold-light backdrop-blur-md sm:text-xs">
-              <BadgeCheck className="h-4 w-4" />
+            <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-gold-light/30 bg-gold-light/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-gold-light backdrop-blur-md sm:px-3.5 sm:text-xs sm:tracking-[0.17em]">
+              <BadgeCheck className="h-4 w-4 shrink-0" />
               {slide.eyebrow}
             </span>
           </div>
 
-          <div className="flex min-h-[7.5rem] items-center overflow-hidden sm:min-h-[9rem] lg:min-h-[10.5rem]">
+          <div className="flex min-h-[6.5rem] items-center overflow-hidden sm:min-h-[9rem] lg:min-h-[10.5rem]">
             <h1
-              className={`text-5xl font-bold leading-[0.98] tracking-[-0.045em] transition-all ease-out motion-reduce:transition-none sm:text-6xl lg:text-7xl ${
+              className={`text-4xl font-bold leading-[0.98] tracking-[-0.04em] transition-all ease-out motion-reduce:transition-none sm:text-6xl lg:text-7xl ${
                 textVisible
                   ? "translate-y-0 opacity-100 blur-0"
                   : "translate-y-8 opacity-0 blur-[3px]"
@@ -161,7 +160,7 @@ export default function HomeHero() {
           </div>
 
           <p
-            className={`mt-5 max-w-xl text-base leading-7 text-white/[0.72] transition-all delay-100 duration-500 sm:text-lg sm:leading-8 ${
+            className={`mt-4 max-w-xl text-base leading-7 text-white/[0.78] transition-all delay-100 duration-500 sm:mt-5 sm:text-lg sm:leading-8 ${
               textVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             }`}
           >
@@ -169,7 +168,7 @@ export default function HomeHero() {
           </p>
 
           <div
-            className={`mt-8 flex flex-col gap-3 transition-all delay-150 duration-500 sm:flex-row ${
+            className={`mt-6 flex flex-col gap-3 transition-all delay-150 duration-500 sm:mt-8 sm:flex-row ${
               textVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             }`}
           >
@@ -189,7 +188,7 @@ export default function HomeHero() {
             </Link>
           </div>
 
-          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-white/55">
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-white/65 sm:mt-7">
             <span className="inline-flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_8px_rgba(99,194,85,0.8)]" />
               Transparent pricing
@@ -203,7 +202,7 @@ export default function HomeHero() {
       </div>
 
       {/* Professional control dock */}
-      <div className="absolute inset-x-0 bottom-5 z-20 px-5 sm:px-8 lg:bottom-7 lg:px-10">
+      <div className="absolute inset-x-0 bottom-4 z-20 px-4 sm:bottom-5 sm:px-8 lg:bottom-7 lg:px-10">
         <div className="mx-auto flex max-w-7xl items-end justify-between gap-5">
           <div className="hidden items-center gap-2 sm:flex">
             {SLIDES.map((item, i) => {

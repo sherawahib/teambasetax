@@ -19,7 +19,7 @@ export default function PageHeader({
   imageSrc = DEFAULT_HEADER_IMAGE,
 }: Props) {
   return (
-    <section className="relative w-full overflow-hidden border-b border-white/15 text-white aspect-[21/6] min-h-[140px] sm:min-h-[160px] md:min-h-[180px] max-h-[260px]">
+    <section className="relative w-full overflow-hidden border-b border-white/15 text-white min-h-[160px] sm:min-h-[180px] md:aspect-[21/6] md:min-h-[200px] md:max-h-[260px]">
       <Image
         src={imageSrc}
         alt=""
@@ -34,9 +34,9 @@ export default function PageHeader({
       />
       <div className="absolute inset-0 bg-black/20" aria-hidden />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:py-10 md:py-14">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:py-10 md:py-14">
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className="flex flex-wrap items-center gap-1 text-sm text-white/90 mb-5">
+          <nav className="mb-3 flex flex-wrap items-center gap-1 text-xs text-white/90 sm:mb-5 sm:text-sm">
             {breadcrumbs.map((crumb, i) => (
               <span key={crumb.label} className="flex items-center gap-1">
                 {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
@@ -51,7 +51,7 @@ export default function PageHeader({
             ))}
           </nav>
         )}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight drop-shadow-sm">{title}</h1>
+        <h1 className="text-xl font-bold tracking-tight drop-shadow-sm sm:text-3xl md:text-4xl">{title}</h1>
         {subtitle && (
           <p className="mt-3 text-base sm:text-lg text-white/95 max-w-3xl drop-shadow-sm">{subtitle}</p>
         )}

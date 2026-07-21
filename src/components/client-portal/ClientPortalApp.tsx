@@ -83,7 +83,11 @@ export default function ClientPortalApp() {
   }
 
   if (!session) {
-    return <PortalLogin onLogin={setSession} />;
+    return (
+      <div className="px-4 py-10 md:py-16">
+        <PortalLogin onLogin={setSession} />
+      </div>
+    );
   }
 
   function renderSection() {
@@ -184,7 +188,7 @@ export default function ClientPortalApp() {
         </div>
       </aside>
 
-      <div className="flex-1 bg-surface p-4 sm:p-6 lg:p-8 overflow-x-hidden">{renderSection()}</div>
+      <div className="min-w-0 flex-1 overflow-x-hidden bg-surface p-4 sm:p-6 lg:p-8">{renderSection()}</div>
     </div>
   );
 }

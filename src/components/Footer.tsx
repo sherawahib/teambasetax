@@ -140,7 +140,7 @@ export default function Footer() {
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold-light/15 text-gold-light">
                   <Mail className="h-4 w-4" />
                 </span>
-                <span className="min-w-0 truncate">{contact.email}</span>
+                <span className="min-w-0 break-all">{contact.email}</span>
               </a>
               <a
                 href={contact.phoneHref}

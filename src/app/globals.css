@@ -144,6 +144,11 @@ body {
   .testimonials-track {
     animation: none;
   }
+
+  .hero-progress-bar,
+  .animate-fade-in-up {
+    animation: none;
+  }
 }
 
 input:not([type="checkbox"]):not([type="radio"]),
@@ -151,14 +156,14 @@ textarea,
 select {
   background-color: #ffffff;
   color: var(--foreground);
-  font-size: 16px;
+  font-size: 16px !important;
 }
 
 @media (min-width: 640px) {
   input:not([type="checkbox"]):not([type="radio"]),
   textarea,
   select {
-    font-size: 0.875rem;
+    font-size: 0.875rem !important;
   }
 }
 

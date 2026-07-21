@@ -45,8 +45,8 @@ export default function LegalDocumentLayout({
                 <Shield className="h-3.5 w-3.5" />
                 Legal Document
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
-              <p className="mt-3 text-lg text-white">{subtitle}</p>
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">{title}</h1>
+              <p className="mt-3 text-base text-white sm:text-lg">{subtitle}</p>
             </div>
             <div className="flex flex-wrap gap-4 text-sm text-white">
               <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function LegalDocumentLayout({
               <div className="rounded-2xl bg-navy text-white p-5">
                 <h2 className="text-sm font-semibold text-white mb-2">Questions?</h2>
                 <p className="text-xs text-white/90 mb-3">Contact our office for clarification on these policies.</p>
-                <a href={`mailto:${contact.email}`} className="flex items-center gap-2 text-sm text-white hover:text-gold transition-colors mb-2">
+                <a href={`mailto:${contact.email}`} className="mb-2 flex items-center gap-2 break-all text-sm text-white transition-colors hover:text-gold">
                   <Mail className="h-4 w-4 shrink-0" />
                   {contact.email}
                 </a>
@@ -116,7 +116,7 @@ export default function LegalDocumentLayout({
             </aside>
 
             <div className="space-y-8">
-              <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6 md:p-8">
+              <div className="rounded-2xl border border-gold/30 bg-gold/5 p-4 sm:p-6 md:p-8">
                 <h2 className="text-lg font-semibold text-foreground mb-4">Key points at a glance</h2>
                 <ul className="grid sm:grid-cols-2 gap-3">
                   {summary.map((point) => (
@@ -133,7 +133,7 @@ export default function LegalDocumentLayout({
                   <article
                     key={section.id}
                     id={section.id}
-                    className={`px-6 md:px-8 py-8 scroll-mt-28 ${index > 0 ? "border-t border-border" : ""}`}
+                    className={`scroll-mt-28 px-4 py-6 sm:px-6 sm:py-8 md:px-8 ${index > 0 ? "border-t border-border" : ""}`}
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-gold text-sm font-bold">
