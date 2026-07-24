@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     "retirement planning",
   ],
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo-mark.png",
+    apple: "/logo-mark.png",
   },
 };
 

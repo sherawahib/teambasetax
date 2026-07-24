@@ -85,7 +85,7 @@ export default function HomeHero() {
 
   return (
     <section
-      className="relative flex min-h-[min(620px,100svh)] w-full items-center overflow-hidden bg-[#071008] text-white sm:min-h-[640px] lg:h-[clamp(640px,76vh,780px)]"
+      className="relative flex min-h-[min(620px,100svh)] w-full items-center overflow-hidden bg-[#060f1c] text-white sm:min-h-[640px] lg:h-[clamp(640px,76vh,780px)]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
@@ -130,7 +130,7 @@ export default function HomeHero() {
       ))}
 
       <div
-        className="absolute inset-0 z-[2] bg-gradient-to-r from-[#061007] via-[#08120a]/95 43% to-[#08120a]/15 82%"
+        className="absolute inset-0 z-[2] bg-gradient-to-r from-[#060f1c] via-[#0b1d36]/95 43% to-[#0b1d36]/15 82%"
         aria-hidden
       />
       <div
@@ -171,7 +171,7 @@ export default function HomeHero() {
               aria-live="polite"
             >
               <span className="block text-white">{slide.main}</span>
-              <span className="block bg-gradient-to-r from-gold-light to-[#a7e89b] bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-gold-light to-[#f0d878] bg-clip-text text-transparent">
                 {slide.accent}
               </span>
             </h1>
@@ -192,7 +192,7 @@ export default function HomeHero() {
           >
             <Link
               href="/services"
-              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold-light px-6 py-3 text-sm font-bold text-[#112413] shadow-[0_12px_35px_rgba(99,194,85,0.3)] transition-all hover:-translate-y-0.5 hover:bg-white sm:w-auto"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold-light px-6 py-3 text-sm font-bold text-navy shadow-[0_12px_35px_rgba(201,162,39,0.35)] transition-all hover:-translate-y-0.5 hover:bg-white sm:w-auto"
             >
               Explore Our Services
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -208,11 +208,11 @@ export default function HomeHero() {
 
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-white/65 sm:mt-7">
             <span className="inline-flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_8px_rgba(99,194,85,0.8)]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_8px_rgba(212,175,55,0.85)]" />
               Transparent pricing
             </span>
             <span className="inline-flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_8px_rgba(99,194,85,0.8)]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_8px_rgba(212,175,55,0.85)]" />
               Personalized consultations
             </span>
           </div>
@@ -265,7 +265,7 @@ export default function HomeHero() {
               type="button"
               onClick={next}
               aria-label="Next slide"
-              className="group flex h-12 w-12 items-center justify-center text-white/75 transition-all hover:bg-gold-light hover:text-[#112413] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold-light"
+              className="group flex h-12 w-12 items-center justify-center text-white/75 transition-all hover:bg-gold-light hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold-light"
             >
               <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
             </button>

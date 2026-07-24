@@ -2,16 +2,16 @@ import Link from "next/link";
 
 type Props = {
   variant?: "default" | "footer" | "hero" | "compact";
-  /** Use on dark/green backgrounds (header, footer, hero) */
+  /** Use on dark backgrounds (footer, dark header strips) */
   onDark?: boolean;
   className?: string;
   linkToHome?: boolean;
 };
 
 const sizeMap = {
-  default: "h-auto w-[min(200px,55vw)] max-w-[200px] min-w-0",
-  footer: "h-auto w-[min(200px,70vw)] max-w-[200px] min-w-0",
-  hero: "h-14 sm:h-16 md:h-20 w-auto min-w-0 max-w-[min(340px,85vw)]",
+  default: "h-auto w-[min(240px,62vw)] max-w-[240px] min-w-0",
+  footer: "h-auto w-[min(260px,75vw)] max-w-[260px] min-w-0",
+  hero: "h-14 sm:h-16 md:h-20 w-auto min-w-0 max-w-[min(360px,85vw)]",
   compact: "h-8 w-auto min-w-[120px] max-w-[160px]",
 };
 
@@ -22,15 +22,17 @@ export default function Logo({
   linkToHome = true,
 }: Props) {
   const sizeClass = sizeMap[variant];
+  // logo-light.png = transparent original colors for dark backgrounds
+  // logo.png = light-background friendly (white service text remapped to navy)
   const src = onDark ? "/logo-light.png" : "/logo.png";
 
   const image = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt="Team Based Tax Services"
-      width={200}
-      height={80}
+      alt="TeamBased Tax"
+      width={240}
+      height={100}
       decoding="async"
       loading={variant === "default" ? "eager" : "lazy"}
       className={`object-contain object-left block ${sizeClass} ${className}`}
@@ -42,7 +44,7 @@ export default function Logo({
       <Link
         href="/"
         className="inline-flex items-center shrink-0 hover:opacity-90 transition-opacity"
-        aria-label="Team Based Tax Services — Home"
+        aria-label="TeamBased Tax — Home"
       >
         {image}
       </Link>

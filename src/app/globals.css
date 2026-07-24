@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  /* Light green theme with high-contrast text */
-  --background: #f3f9f0;
-  --foreground: #142616;
-  --navy: #2f7a28;
-  --navy-light: #3d9440;
-  --gold: #4cae3f;
-  --gold-light: #63c255;
-  --gold-dark: #2a6b24;
-  --muted: #4d6450;
-  --border: #cfe3c8;
-  --surface: #eaf5e6;
+  /* Navy + metallic gold from TeamBased Tax logo */
+  --background: #f6f4ef;
+  --foreground: #0b1d36;
+  --navy: #0b1d36;
+  --navy-light: #16325a;
+  --gold: #c9a227;
+  --gold-light: #d4af37;
+  --gold-dark: #9a7b1a;
+  --muted: #5c6570;
+  --border: #ddd6c8;
+  --surface: #efeae0;
   --surface-elevated: #ffffff;
 }
 
@@ -56,7 +56,7 @@ body {
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 10px 30px rgba(20, 38, 22, 0.25);
+  box-shadow: 0 10px 30px rgba(11, 29, 54, 0.28);
 }
 
 .skip-to-content:focus {
@@ -80,11 +80,11 @@ a:focus:not(:focus-visible) {
 html.a11y-high-contrast {
   --background: #ffffff;
   --foreground: #000000;
-  --navy: #005a00;
-  --navy-light: #007000;
-  --gold: #006600;
-  --gold-light: #008000;
-  --gold-dark: #004400;
+  --navy: #000000;
+  --navy-light: #1a1a1a;
+  --gold: #7a5d00;
+  --gold-light: #8a6a00;
+  --gold-dark: #5c4500;
   --muted: #1a1a1a;
   --border: #000000;
   --surface: #f0f0f0;
@@ -124,7 +124,7 @@ html.a11y-reduce-motion *::after {
 .prose-content p {
   margin-bottom: 1rem;
   line-height: 1.75;
-  color: #3d5240;
+  color: #3d4a5c;
 }
 
 .prose-content h2 {
@@ -157,7 +157,7 @@ html.a11y-reduce-motion *::after {
 
 .prose-content li {
   margin-bottom: 0.5rem;
-  color: #3d5240;
+  color: #3d4a5c;
   line-height: 1.7;
 }
 

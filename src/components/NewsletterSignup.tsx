@@ -53,7 +53,7 @@ export default function NewsletterSignup({ compact }: Props) {
       />
       <button
         type="submit"
-        className={`flex min-h-11 items-center justify-center gap-2 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${compact ? "bg-gold-light text-[#142616] hover:bg-white" : "bg-navy text-white hover:bg-navy-light"}`}
+        className={`flex min-h-11 items-center justify-center gap-2 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${compact ? "bg-gold-light text-navy hover:bg-white" : "bg-navy text-white hover:bg-navy-light"}`}
       >
         <Send className="h-4 w-4" />
         Subscribe

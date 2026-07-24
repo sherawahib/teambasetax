@@ -109,7 +109,7 @@ export default function AccessibilityWidget() {
           role="dialog"
           aria-modal="true"
           aria-label="Accessibility options"
-          className="w-[min(100vw-2rem,22rem)] rounded-2xl border border-border bg-surface-elevated p-4 shadow-[0_20px_50px_rgba(20,38,22,0.25)]"
+          className="w-[min(100vw-2rem,22rem)] rounded-2xl border border-border bg-surface-elevated p-4 shadow-[0_20px_50px_rgba(11,29,54,0.22)]"
         >
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
@@ -224,7 +224,7 @@ export default function AccessibilityWidget() {
         aria-expanded={open}
         aria-controls={panelId}
         aria-haspopup="dialog"
-        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-navy px-4 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(47,122,40,0.4)] transition-transform hover:bg-navy-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2"
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-navy px-4 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(11,29,54,0.4)] transition-transform hover:bg-navy-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2"
       >
         <Accessibility className="h-5 w-5 shrink-0" aria-hidden />
         <span>Accessibility</span>

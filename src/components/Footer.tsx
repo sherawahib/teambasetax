@@ -109,7 +109,7 @@ export default function Footer() {
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/contact/request-appointment"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold-light px-6 py-3 text-sm font-bold text-[#142616] shadow-[0_10px_30px_rgba(99,194,85,0.3)] transition-all hover:-translate-y-0.5 hover:bg-white"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold-light px-6 py-3 text-sm font-bold text-navy shadow-[0_10px_30px_rgba(201,162,39,0.35)] transition-all hover:-translate-y-0.5 hover:bg-white"
               >
                 Schedule Appointment
                 <ArrowRight className="h-4 w-4" />

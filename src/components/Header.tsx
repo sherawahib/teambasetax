@@ -79,13 +79,13 @@ export default function Header() {
       <header
         className={`z-50 text-foreground transition-all duration-300 ease-out ${
           scrolled
-            ? "fixed top-2 left-2 right-2 sm:top-3 sm:left-3 sm:right-3 md:left-5 md:right-5 lg:left-8 lg:right-8 rounded-2xl border border-white/50 bg-white/70 shadow-[0_12px_40px_rgba(20,38,22,0.18)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/55"
+            ? "fixed top-2 left-2 right-2 sm:top-3 sm:left-3 sm:right-3 md:left-5 md:right-5 lg:left-8 lg:right-8 rounded-2xl border border-navy/10 bg-white/80 shadow-[0_12px_40px_rgba(11,29,54,0.16)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/65"
             : "sticky top-0 bg-surface-elevated border-b border-border shadow-md shadow-navy/10"
         }`}
       >
         {/* Top bar — hides while floating */}
         <div
-          className={`hidden md:block relative overflow-hidden bg-gradient-to-r from-[#1f5c1a] via-navy to-[#3d9440] text-white transition-all duration-300 ${
+          className={`hidden md:block relative overflow-hidden bg-gradient-to-r from-[#060f1c] via-navy to-[#16325a] text-white transition-all duration-300 ${
             scrolled ? "max-h-0 opacity-0 pointer-events-none py-0" : "max-h-24 opacity-100"
           }`}
         >
@@ -93,7 +93,7 @@ export default function Header() {
             className="pointer-events-none absolute inset-0 opacity-30"
             style={{
               backgroundImage:
-                "radial-gradient(circle at 12% 50%, rgba(255,255,255,0.22), transparent 28%), radial-gradient(circle at 88% 40%, rgba(99,194,85,0.35), transparent 32%)",
+                "radial-gradient(circle at 12% 50%, rgba(255,255,255,0.18), transparent 28%), radial-gradient(circle at 88% 40%, rgba(212,175,55,0.28), transparent 32%)",
             }}
             aria-hidden
           />
@@ -143,7 +143,7 @@ export default function Header() {
               </div>
               <Link
                 href="/resources/client-portal"
-                className="inline-flex items-center rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-navy shadow-sm transition-all hover:bg-gold-light hover:text-white"
+                className="inline-flex items-center rounded-full bg-gold-light px-3.5 py-1.5 text-xs font-bold text-navy shadow-sm transition-all hover:bg-white"
               >
                 Login
               </Link>
