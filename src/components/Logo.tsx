@@ -9,8 +9,8 @@ type Props = {
 };
 
 const sizeMap = {
-  default: "h-auto w-[min(240px,62vw)] max-w-[240px] min-w-0",
-  footer: "h-auto w-[min(260px,75vw)] max-w-[260px] min-w-0",
+  default: "h-auto w-[min(250px,64vw)] max-w-[250px] min-w-0",
+  footer: "h-auto w-[min(270px,78vw)] max-w-[270px] min-w-0",
   hero: "h-14 sm:h-16 md:h-20 w-auto min-w-0 max-w-[min(360px,85vw)]",
   compact: "h-8 w-auto min-w-[120px] max-w-[160px]",
 };
