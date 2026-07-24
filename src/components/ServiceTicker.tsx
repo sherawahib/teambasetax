@@ -26,16 +26,16 @@ export default function ServiceTicker() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-light to-transparent" aria-hidden />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold-light/80 to-transparent" aria-hidden />
 
-      <div className="relative overflow-hidden py-2.5 sm:py-3.5">
-        <div className="service-ticker-track flex w-max items-center gap-10 sm:gap-14" aria-hidden>
+      <div className="relative overflow-hidden py-1.5 sm:py-2">
+        <div className="service-ticker-track flex w-max items-center gap-6 sm:gap-8" aria-hidden>
           {items.map((label, i) => (
             <span
               key={`${label}-${i}`}
-              className="inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm font-extrabold uppercase tracking-[0.12em] text-white sm:text-base md:text-lg"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.1em] text-white sm:text-xs md:text-sm"
             >
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-gold-light sm:h-5 sm:w-5" />
-              <span className="text-gold-light drop-shadow-[0_0_12px_rgba(212,175,55,0.55)]">{label}</span>
-              <span className="ml-4 h-1.5 w-1.5 rounded-full bg-gold-light shadow-[0_0_10px_rgba(212,175,55,0.95)] sm:ml-8" />
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-gold-light" />
+              <span className="text-gold-light drop-shadow-[0_0_8px_rgba(212,175,55,0.45)]">{label}</span>
+              <span className="ml-3 h-1 w-1 rounded-full bg-gold-light shadow-[0_0_6px_rgba(212,175,55,0.9)] sm:ml-5" />
             </span>
           ))}
         </div>

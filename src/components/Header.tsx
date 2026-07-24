@@ -73,7 +73,7 @@ export default function Header() {
     <>
       {/* Keeps layout from jumping when header becomes fixed */}
       <div
-        className={`transition-[height] duration-300 ${scrolled ? "h-[108px] md:h-[112px]" : "h-0"}`}
+        className={`transition-[height] duration-300 ${scrolled ? "h-[96px] md:h-[100px]" : "h-0"}`}
         aria-hidden
       />
 

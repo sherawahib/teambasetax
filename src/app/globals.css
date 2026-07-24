@@ -216,7 +216,7 @@ html.a11y-reduce-motion *::after {
 }
 
 .service-ticker-track {
-  animation: service-ticker-scroll 28s linear infinite;
+  animation: service-ticker-scroll 22s linear infinite;
 }
 
 @keyframes testimonials-scroll {
