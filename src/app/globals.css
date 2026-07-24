@@ -215,7 +215,20 @@ html.a11y-reduce-motion *::after {
   animation: testimonials-scroll linear infinite;
 }
 
+.service-ticker-track {
+  animation: service-ticker-scroll 28s linear infinite;
+}
+
 @keyframes testimonials-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes service-ticker-scroll {
   0% {
     transform: translateX(0);
   }
@@ -229,7 +242,8 @@ html.a11y-reduce-motion *::after {
     scroll-behavior: auto;
   }
 
-  .testimonials-track {
+  .testimonials-track,
+  .service-ticker-track {
     animation: none;
   }
 

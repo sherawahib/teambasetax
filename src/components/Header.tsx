@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ChevronDown, Clock3, Mail, MapPin, Menu, Phone, ShieldCheck, X } from "lucide-react";
 import Logo from "@/components/Logo";
+import ServiceTicker from "@/components/ServiceTicker";
 import { contact, navigation, type NavItem } from "@/data/site";
 
 function NavLink({ item, onNavigate, mobile }: { item: NavItem; onNavigate?: () => void; mobile?: boolean }) {
@@ -72,7 +73,7 @@ export default function Header() {
     <>
       {/* Keeps layout from jumping when header becomes fixed */}
       <div
-        className={`transition-[height] duration-300 ${scrolled ? "h-[72px] md:h-[76px]" : "h-0"}`}
+        className={`transition-[height] duration-300 ${scrolled ? "h-[108px] md:h-[112px]" : "h-0"}`}
         aria-hidden
       />
 
@@ -83,6 +84,11 @@ export default function Header() {
             : "sticky top-0 bg-surface-elevated border-b border-border shadow-md shadow-navy/10"
         }`}
       >
+        {/* Continuous service marquee — sits above the contact top bar */}
+        <div className={scrolled ? "rounded-t-2xl overflow-hidden" : ""}>
+          <ServiceTicker />
+        </div>
+
         {/* Top bar — hides while floating */}
         <div
           className={`hidden md:block relative overflow-hidden bg-gradient-to-r from-[#060f1c] via-navy to-[#16325a] text-white transition-all duration-300 ${
