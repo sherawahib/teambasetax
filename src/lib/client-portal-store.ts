@@ -2,6 +2,7 @@
 
 import type {
   ChecklistItem,
+  ClientTaxProfile,
   IrsNotice,
   LegalCase,
   PortalAppointment,
@@ -15,7 +16,7 @@ import type {
 import { SEED_CHECKLIST } from "@/data/client-portal";
 
 const SESSION_KEY = "tbts-portal-session";
-const DATA_KEY = "tbts-portal-data";
+const DATA_KEY = "tbts-portal-data-v2";
 
 type PortalData = {
   documents: PortalDocument[];
@@ -226,7 +227,6 @@ export async function signup(input: {
   phone: string;
   password: string;
   confirmPassword: string;
-  accountType: PortalUser["accountType"];
 }): Promise<{ session: PortalSession | null; error?: string }> {
   try {
     const res = await fetch("/api/portal/auth/signup", {
@@ -277,7 +277,9 @@ export function savePortalData(data: PortalData) {
   writeData(data);
 }
 
-export function addDocument(doc: Omit<PortalDocument, "id" | "uploadedAt" | "status">) {
+export function addDocument(
+  doc: Omit<PortalDocument, "id" | "uploadedAt" | "status"> & { checklistItemId?: string },
+) {
   const data = readData();
   const newDoc: PortalDocument = {
     ...doc,
@@ -286,6 +288,13 @@ export function addDocument(doc: Omit<PortalDocument, "id" | "uploadedAt" | "sta
     status: "received",
   };
   data.documents.unshift(newDoc);
+
+  if (doc.checklistItemId) {
+    data.checklist = data.checklist.map((item) =>
+      item.id === doc.checklistItemId ? { ...item, done: true } : item,
+    );
+  }
+
   writeData(data);
 
   fetch("/api/portal", {
@@ -298,9 +307,55 @@ export function addDocument(doc: Omit<PortalDocument, "id" | "uploadedAt" | "sta
       size: doc.size,
       taxYear: doc.taxYear,
     }),
+  }).then(() => {
+    if (doc.checklistItemId) {
+      return fetch("/api/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "checklist", id: doc.checklistItemId, done: true }),
+      });
+    }
   }).then(() => fetchPortalDataFromServer());
 
   return newDoc;
+}
+
+export async function loadTaxProfile(email: string): Promise<ClientTaxProfile | null> {
+  try {
+    const res = await fetch(`/api/portal/profile?email=${encodeURIComponent(email)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.profile as ClientTaxProfile;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveTaxProfile(
+  email: string,
+  profile: ClientTaxProfile,
+): Promise<{ session: PortalSession | null; profile: ClientTaxProfile | null; error?: string }> {
+  try {
+    const res = await fetch("/api/portal/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, profile }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { session: null, profile: null, error: data.error ?? "Save failed." };
+    const current = getSession();
+    if (current) {
+      const session: PortalSession = {
+        ...current,
+        user: { ...current.user, ...data.user },
+      };
+      saveSession(session);
+      return { session, profile: data.profile };
+    }
+    return { session: null, profile: data.profile };
+  } catch {
+    return { session: null, profile: null, error: "Unable to save profile." };
+  }
 }
 
 export function sendMessage(subject: string, body: string) {

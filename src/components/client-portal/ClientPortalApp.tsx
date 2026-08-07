@@ -20,6 +20,7 @@ import {
 import { PORTAL_NAV } from "@/data/client-portal";
 import { getSession, logout } from "@/lib/client-portal-store";
 import type { PortalSection, PortalSession } from "@/types/client-portal";
+import CompleteProfileWizard from "./CompleteProfileWizard";
 import PortalLogin from "./PortalLogin";
 import {
   AdvisoryView,
@@ -55,6 +56,7 @@ export default function ClientPortalApp() {
   const [mobileNav, setMobileNav] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [forceProfileWizard, setForceProfileWizard] = useState(false);
 
   useEffect(() => {
     setSession(getSession());
@@ -68,6 +70,7 @@ export default function ClientPortalApp() {
     logout();
     setSession(null);
     setSection("dashboard");
+    setForceProfileWizard(false);
   }
 
   function refresh() {
@@ -86,6 +89,40 @@ export default function ClientPortalApp() {
     return (
       <div className="px-4 py-10 md:py-16">
         <PortalLogin onLogin={setSession} />
+      </div>
+    );
+  }
+
+  const needsProfile = !session.user.profileComplete || forceProfileWizard;
+
+  if (needsProfile) {
+    return (
+      <div className="min-h-[calc(100dvh-12rem)] bg-surface">
+        <div className="border-b border-border bg-surface-elevated px-4 py-3">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-foreground">{session.user.name}</p>
+              <p className="text-xs text-muted">Complete Tax Client Checklist profile</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium text-foreground"
+            >
+              <LogOut className="h-4 w-4" /> Sign Out
+            </button>
+          </div>
+        </div>
+        <CompleteProfileWizard
+          session={session}
+          allowSkip={session.user.profileComplete}
+          onSkip={() => setForceProfileWizard(false)}
+          onComplete={(next) => {
+            setSession(next);
+            setForceProfileWizard(false);
+            refresh();
+          }}
+        />
       </div>
     );
   }
@@ -113,7 +150,12 @@ export default function ClientPortalApp() {
       case "calendar":
         return <CalendarView />;
       case "profile":
-        return <ProfileView onSessionUpdate={setSession} />;
+        return (
+          <ProfileView
+            onSessionUpdate={setSession}
+            onEditTaxProfile={() => setForceProfileWizard(true)}
+          />
+        );
       default:
         return <DashboardView {...viewProps} />;
     }

@@ -20,15 +20,17 @@ model Testimonial {
 }
 
 model PortalClient {
-  id           String   @id
-  name         String
-  email        String   @unique
-  phone        String
-  accountType  String
-  clientSince  String
-  passwordHash String
-  salt         String
-  createdAt    DateTime @default(now())
+  id              String   @id
+  name            String
+  email           String   @unique
+  phone           String
+  accountType     String
+  clientSince     String
+  passwordHash    String
+  salt            String
+  profileComplete Boolean  @default(false)
+  profileData     String   @default("{}")
+  createdAt       DateTime @default(now())
 }
 
 model PortalDocument {

@@ -80,7 +80,9 @@ async function main() {
   const demoSalt = "tbts-demo-salt";
   await prisma.portalClient.upsert({
     where: { email: "demo@client.com" },
-    update: {},
+    update: {
+      profileComplete: true,
+    },
     create: {
       id: "client-demo",
       name: "Demo Client",
@@ -90,6 +92,8 @@ async function main() {
       accountType: "Individual",
       salt: demoSalt,
       passwordHash: hashPassword("demo1234", demoSalt),
+      profileComplete: true,
+      profileData: "{}",
       createdAt: new Date("2021-01-15T10:00:00.000Z"),
     },
   });
@@ -216,12 +220,10 @@ async function main() {
     },
   });
 
+  // Replace checklist with Tax Client Checklist items
+  await prisma.portalChecklistItem.deleteMany({});
   for (const item of SEED_CHECKLIST) {
-    await prisma.portalChecklistItem.upsert({
-      where: { id: item.id },
-      update: {},
-      create: item,
-    });
+    await prisma.portalChecklistItem.create({ data: item });
   }
 
   console.log("Seed complete.");

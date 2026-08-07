@@ -5,13 +5,18 @@ export const PORTAL_DEMO = {
   password: "demo1234",
 };
 
+/** Document categories aligned with Tax Client Checklist */
 export const DOCUMENT_CATEGORIES: DocumentCategory[] = [
-  "W-2 & Income",
-  "1099 Forms",
-  "Receipts & Expenses",
+  "Personal ID",
+  "Income - W-2",
+  "Income - 1099",
+  "Income - Retirement / Social Security",
+  "Education",
+  "Mortgage & Housing",
   "Business Records",
+  "Vehicle Expenses",
+  "Business Expenses",
   "Prior Returns",
-  "Legal & IRS",
   "Other",
 ];
 
@@ -29,19 +34,56 @@ export const PORTAL_NAV: { id: PortalSection; label: string }[] = [
   { id: "profile", label: "Profile & Settings" },
 ];
 
+/** Seeded from Tax Client Checklist (Word) — used for portal checklist + profile wizard */
 export const SEED_CHECKLIST: ChecklistItem[] = [
-  { id: "c1", label: "Gather W-2s from all employers", category: "Income", done: true },
-  { id: "c2", label: "Collect 1099-NEC / 1099-MISC forms", category: "Income", done: true },
-  { id: "c3", label: "Mortgage interest statement (1098)", category: "Deductions", done: false },
-  { id: "c4", label: "Property tax receipts", category: "Deductions", done: false },
-  { id: "c5", label: "Charitable contribution records", category: "Deductions", done: false },
-  { id: "c6", label: "Medical expense receipts (if itemizing)", category: "Deductions", done: false },
-  { id: "c7", label: "Childcare provider tax ID (Form 2441)", category: "Credits", done: false },
-  { id: "c8", label: "Education expenses (1098-T)", category: "Credits", done: false },
-  { id: "c9", label: "Business income & expense ledger", category: "Business", done: false },
-  { id: "c10", label: "Quarterly estimated tax payments made", category: "Business", done: false },
-  { id: "c11", label: "Retirement contribution statements", category: "Planning", done: false },
-  { id: "c12", label: "Prior-year return copy", category: "General", done: true },
+  // Personal Information
+  { id: "tc-p1", label: "Full names of taxpayer, spouse, and dependents", category: "Personal Information", done: false },
+  { id: "tc-p2", label: "Current mailing address", category: "Personal Information", done: false },
+  { id: "tc-p3", label: "Social Security numbers for all applicable individuals", category: "Personal Information", done: false },
+  { id: "tc-p4", label: "Dates of birth for all applicable individuals", category: "Personal Information", done: false },
+  { id: "tc-p5", label: "Copy of driver's license or state ID", category: "Personal Information", done: false },
+  { id: "tc-p6", label: "Email address and phone number", category: "Personal Information", done: false },
+  { id: "tc-p7", label: "Mortgage statement if you own a home", category: "Personal Information", done: false },
+  { id: "tc-p8", label: "College tuition statements and education expense records", category: "Personal Information", done: false },
+  // Income Documents
+  { id: "tc-i1", label: "W-2 forms", category: "Income Documents", done: false },
+  { id: "tc-i2", label: "1099-R forms for retirement income", category: "Income Documents", done: false },
+  { id: "tc-i3", label: "1099-MISC forms", category: "Income Documents", done: false },
+  { id: "tc-i4", label: "1099-NEC forms", category: "Income Documents", done: false },
+  { id: "tc-i5", label: "1099-K forms", category: "Income Documents", done: false },
+  { id: "tc-i6", label: "Social Security income statement", category: "Income Documents", done: false },
+  { id: "tc-i7", label: "Year-end retirement account statements", category: "Income Documents", done: false },
+  { id: "tc-i8", label: "Disability income documents, if applicable", category: "Income Documents", done: false },
+  // Business Information
+  { id: "tc-b1", label: "Business name and address", category: "Business Information", done: false },
+  { id: "tc-b2", label: "Employer Identification Number (EIN)", category: "Business Information", done: false },
+  { id: "tc-b3", label: "Principal business activity", category: "Business Information", done: false },
+  { id: "tc-b4", label: "Business income from all sources", category: "Business Information", done: false },
+  { id: "tc-b5", label: "Twelve months of business bank statements", category: "Business Information", done: false },
+  { id: "tc-b6", label: "Official financial statement or profit and loss statement", category: "Business Information", done: false },
+  { id: "tc-b7", label: "Copy of prior-year business tax return", category: "Business Information", done: false },
+  { id: "tc-b8", label: "1099-MISC, 1099-NEC, and 1099-K forms received", category: "Business Information", done: false },
+  // Vehicle Expenses
+  { id: "tc-v1", label: "Vehicle make, model, and year", category: "Vehicle Expenses for Business Use", done: false },
+  { id: "tc-v2", label: "Purchase date, purchase amount, and purchase contract", category: "Vehicle Expenses for Business Use", done: false },
+  { id: "tc-v3", label: "Auto insurance records", category: "Vehicle Expenses for Business Use", done: false },
+  { id: "tc-v4", label: "Total annual miles driven", category: "Vehicle Expenses for Business Use", done: false },
+  { id: "tc-v5", label: "Total business miles driven", category: "Vehicle Expenses for Business Use", done: false },
+  { id: "tc-v6", label: "Vehicle repairs and maintenance", category: "Vehicle Expenses for Business Use", done: false },
+  { id: "tc-v7", label: "Vehicle registration date and registration cost", category: "Vehicle Expenses for Business Use", done: false },
+  // Other Business Expenses
+  { id: "tc-e1", label: "Advertising", category: "Other Business Expenses", done: false },
+  { id: "tc-e2", label: "Commissions and fees", category: "Other Business Expenses", done: false },
+  { id: "tc-e3", label: "Contract labor, including 1099 forms issued to contractors", category: "Other Business Expenses", done: false },
+  { id: "tc-e4", label: "Legal and professional fees", category: "Other Business Expenses", done: false },
+  { id: "tc-e5", label: "Rent", category: "Other Business Expenses", done: false },
+  { id: "tc-e6", label: "Supplies and materials", category: "Other Business Expenses", done: false },
+  { id: "tc-e7", label: "Travel and meals", category: "Other Business Expenses", done: false },
+  { id: "tc-e8", label: "Utilities", category: "Other Business Expenses", done: false },
+  { id: "tc-e9", label: "Health insurance", category: "Other Business Expenses", done: false },
+  { id: "tc-e10", label: "Equipment purchased for business during the tax year", category: "Other Business Expenses", done: false },
+  // Notes
+  { id: "tc-n1", label: "Additional notes / major life or business changes", category: "Client Notes", done: false },
 ];
 
 export const TAX_DEADLINES = [
@@ -80,7 +122,7 @@ export const ADVISORY_RESOURCES = [
   },
   {
     title: "Financial Calculators",
-    description: "13 interactive tools for tax and financial planning.",
+    description: "Interactive tools for tax and financial planning.",
     href: "/resources/financial-calculators",
   },
   {

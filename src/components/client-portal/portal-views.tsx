@@ -683,7 +683,13 @@ export function CalendarView() {
   );
 }
 
-export function ProfileView({ onSessionUpdate }: { onSessionUpdate: (s: PortalSession) => void }) {
+export function ProfileView({
+  onSessionUpdate,
+  onEditTaxProfile,
+}: {
+  onSessionUpdate: (s: PortalSession) => void;
+  onEditTaxProfile?: () => void;
+}) {
   const session = getSession();
   const [name, setName] = useState(session?.user.name ?? "");
   const [phone, setPhone] = useState(session?.user.phone ?? "");
@@ -705,8 +711,34 @@ export function ProfileView({ onSessionUpdate }: { onSessionUpdate: (s: PortalSe
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">Profile & Settings</h2>
-        <p className="text-muted text-sm mt-1">Manage your account information and preferences.</p>
+        <p className="text-muted text-sm mt-1">Manage your account and Tax Client Checklist profile.</p>
       </div>
+
+      <PortalCard
+        title="Tax Client Checklist Profile"
+        action={
+          onEditTaxProfile ? (
+            <button
+              type="button"
+              onClick={onEditTaxProfile}
+              className="text-sm font-semibold text-gold hover:underline"
+            >
+              {session.user.profileComplete ? "Update checklist profile" : "Complete profile"}
+            </button>
+          ) : undefined
+        }
+      >
+        <p className="text-sm text-slate-600">
+          Status:{" "}
+          <span className={`font-semibold ${session.user.profileComplete ? "text-green-700" : "text-amber-700"}`}>
+            {session.user.profileComplete ? "Complete" : "Incomplete — finish your details and document uploads"}
+          </span>
+        </p>
+        <p className="mt-2 text-sm text-muted">
+          Includes personal info, income documents, business records, vehicle expenses, and client notes from our Tax
+          Client Checklist.
+        </p>
+      </PortalCard>
 
       <PortalCard title="Account Details">
         <form onSubmit={handleSave} className="space-y-4 max-w-md">

@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { registerPortalClient } from "@/lib/portal-clients-store";
-import type { PortalUser } from "@/types/client-portal";
-
-const ACCOUNT_TYPES: PortalUser["accountType"][] = ["Individual", "Business", "Both"];
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +9,6 @@ export async function POST(request: Request) {
       phone?: string;
       password?: string;
       confirmPassword?: string;
-      accountType?: PortalUser["accountType"];
     };
 
     if (!body.name?.trim() || body.name.trim().length < 2) {
@@ -30,16 +26,13 @@ export async function POST(request: Request) {
     if (body.password !== body.confirmPassword) {
       return NextResponse.json({ error: "Passwords do not match." }, { status: 400 });
     }
-    if (!body.accountType || !ACCOUNT_TYPES.includes(body.accountType)) {
-      return NextResponse.json({ error: "Please select an account type." }, { status: 400 });
-    }
 
     const user = await registerPortalClient({
       name: body.name,
       email: body.email,
       phone: body.phone,
       password: body.password,
-      accountType: body.accountType,
+      accountType: "Individual",
     });
 
     return NextResponse.json({

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LogIn, UserPlus } from "lucide-react";
 import { PORTAL_DEMO } from "@/data/client-portal";
 import { login, signup } from "@/lib/client-portal-store";
-import type { PortalSession, PortalUser } from "@/types/client-portal";
+import type { PortalSession } from "@/types/client-portal";
 
 type Props = {
   onLogin: (session: PortalSession) => void;
@@ -19,7 +19,6 @@ export default function PortalLogin({ onLogin }: Props) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [accountType, setAccountType] = useState<PortalUser["accountType"]>("Individual");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -50,7 +49,6 @@ export default function PortalLogin({ onLogin }: Props) {
       phone: phone.trim(),
       password,
       confirmPassword,
-      accountType,
     });
     setLoading(false);
     if (!result.session) {
@@ -76,7 +74,11 @@ export default function PortalLogin({ onLogin }: Props) {
       <div className="rounded-2xl border border-border bg-surface-elevated shadow-lg overflow-hidden">
         <div className="bg-navy px-6 py-8 text-center text-white">
           <h2 className="text-xl font-bold">Secure Client Portal</h2>
-          <p className="text-sm text-white/80 mt-2">Sign in or create your account</p>
+          <p className="mt-2 text-sm text-white/80">
+            {mode === "signup"
+              ? "Create your account with basic info — then complete your tax checklist profile."
+              : "Sign in to manage documents, returns, and your tax checklist."}
+          </p>
         </div>
 
         <div className="flex border-b border-border">
@@ -101,9 +103,11 @@ export default function PortalLogin({ onLogin }: Props) {
         </div>
 
         {mode === "signin" ? (
-          <form onSubmit={handleSignIn} className="p-6 space-y-4">
+          <form onSubmit={handleSignIn} className="space-y-4 p-6">
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{error}</div>
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                {error}
+              </div>
             )}
 
             <div>
@@ -141,21 +145,28 @@ export default function PortalLogin({ onLogin }: Props) {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 w-full rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-white hover:bg-navy-light transition-colors min-h-11 disabled:opacity-60"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-navy-light disabled:opacity-60"
             >
               <LogIn className="h-4 w-4" />
               {loading ? "Signing in…" : "Sign In"}
             </button>
 
-            <button type="button" onClick={fillDemo} className="w-full text-sm text-gold font-medium hover:underline">
+            <button type="button" onClick={fillDemo} className="w-full text-sm font-medium text-gold hover:underline">
               Use demo account ({PORTAL_DEMO.email})
             </button>
           </form>
         ) : (
-          <form onSubmit={handleSignUp} className="p-6 space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-4 p-6">
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{error}</div>
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                {error}
+              </div>
             )}
+
+            <p className="rounded-lg border border-gold/25 bg-gold/5 px-3 py-2 text-xs text-slate-700">
+              Simple signup only: name, email, phone, and password. After signup you will complete the full Tax Client
+              Checklist (details + document uploads).
+            </p>
 
             <div>
               <label htmlFor="signup-name" className={labelClass}>
@@ -205,24 +216,8 @@ export default function PortalLogin({ onLogin }: Props) {
             </div>
 
             <div>
-              <label htmlFor="signup-account-type" className={labelClass}>
-                Account Type *
-              </label>
-              <select
-                id="signup-account-type"
-                value={accountType}
-                onChange={(e) => setAccountType(e.target.value as PortalUser["accountType"])}
-                className={inputClass}
-              >
-                <option value="Individual">Individual</option>
-                <option value="Business">Business</option>
-                <option value="Both">Individual & Business</option>
-              </select>
-            </div>
-
-            <div>
               <label htmlFor="signup-password" className={labelClass}>
-                Password * <span className="text-muted font-normal">(min. 6 characters)</span>
+                Password * <span className="font-normal text-muted">(min. 6 characters)</span>
               </label>
               <input
                 id="signup-password"
@@ -257,13 +252,13 @@ export default function PortalLogin({ onLogin }: Props) {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 w-full rounded-lg bg-gold px-6 py-3.5 text-sm font-semibold text-white hover:bg-gold-light transition-colors min-h-11 disabled:opacity-60"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3.5 text-sm font-semibold text-navy transition-colors hover:bg-gold-light disabled:opacity-60"
             >
               <UserPlus className="h-4 w-4" />
               {loading ? "Creating account…" : "Create Account"}
             </button>
 
-            <p className="text-xs text-muted text-center">
+            <p className="text-center text-xs text-muted">
               By signing up you agree to our{" "}
               <a href="/privacy-policy" className="text-gold hover:underline">
                 Privacy Policy
@@ -277,10 +272,6 @@ export default function PortalLogin({ onLogin }: Props) {
           </form>
         )}
       </div>
-
-      <p className="text-center text-xs text-muted mt-4 px-4">
-        Secure client access for documents, returns, and messaging with TEAMBASED Tax Services.
-      </p>
     </div>
   );
 }

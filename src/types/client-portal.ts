@@ -1,3 +1,5 @@
+/** Tax Client Checklist profile + document types for portal onboarding */
+
 export type PortalSection =
   | "dashboard"
   | "documents"
@@ -18,16 +20,27 @@ export type PortalUser = {
   phone: string;
   clientSince: string;
   accountType: "Individual" | "Business" | "Both";
+  /** False until Tax Client Checklist profile wizard is finished */
+  profileComplete: boolean;
 };
 
 export type DocumentCategory =
+  | "Personal ID"
+  | "Income - W-2"
+  | "Income - 1099"
+  | "Income - Retirement / Social Security"
+  | "Education"
+  | "Mortgage & Housing"
+  | "Business Records"
+  | "Vehicle Expenses"
+  | "Business Expenses"
+  | "Prior Returns"
+  | "Other"
+  // legacy categories kept for existing demo docs
   | "W-2 & Income"
   | "1099 Forms"
   | "Receipts & Expenses"
-  | "Business Records"
-  | "Prior Returns"
-  | "Legal & IRS"
-  | "Other";
+  | "Legal & IRS";
 
 export type PortalDocument = {
   id: string;
@@ -37,6 +50,7 @@ export type PortalDocument = {
   uploadedAt: string;
   taxYear: number;
   status: "received" | "reviewing" | "approved" | "needs-action";
+  checklistItemId?: string;
 };
 
 export type TaxReturnStatus = {
@@ -107,3 +121,84 @@ export type PortalSession = {
   user: PortalUser;
   loggedInAt: string;
 };
+
+/** Full tax intake profile from Tax Client Checklist */
+export type ClientTaxProfile = {
+  accountType: PortalUser["accountType"];
+  // Personal
+  taxpayerFullName: string;
+  spouseFullName: string;
+  dependents: string;
+  mailingAddress: string;
+  city: string;
+  state: string;
+  zip: string;
+  taxpayerSsn: string;
+  spouseSsn: string;
+  dependentsSsn: string;
+  taxpayerDob: string;
+  spouseDob: string;
+  dependentsDob: string;
+  // Business
+  businessName: string;
+  businessAddress: string;
+  ein: string;
+  principalActivity: string;
+  businessIncomeNotes: string;
+  // Vehicle
+  vehicleMake: string;
+  vehicleModel: string;
+  vehicleYear: string;
+  purchaseDate: string;
+  purchaseAmount: string;
+  totalMiles: string;
+  businessMiles: string;
+  registrationDate: string;
+  registrationCost: string;
+  // Notes
+  clientNotes: string;
+  // Progress
+  completedSteps: string[];
+  profileComplete: boolean;
+  updatedAt: string;
+};
+
+export function emptyClientTaxProfile(defaults?: {
+  name?: string;
+  accountType?: PortalUser["accountType"];
+}): ClientTaxProfile {
+  return {
+    accountType: defaults?.accountType ?? "Individual",
+    taxpayerFullName: defaults?.name ?? "",
+    spouseFullName: "",
+    dependents: "",
+    mailingAddress: "",
+    city: "",
+    state: "MD",
+    zip: "",
+    taxpayerSsn: "",
+    spouseSsn: "",
+    dependentsSsn: "",
+    taxpayerDob: "",
+    spouseDob: "",
+    dependentsDob: "",
+    businessName: "",
+    businessAddress: "",
+    ein: "",
+    principalActivity: "",
+    businessIncomeNotes: "",
+    vehicleMake: "",
+    vehicleModel: "",
+    vehicleYear: "",
+    purchaseDate: "",
+    purchaseAmount: "",
+    totalMiles: "",
+    businessMiles: "",
+    registrationDate: "",
+    registrationCost: "",
+    clientNotes: "",
+    completedSteps: [],
+    profileComplete: false,
+    updatedAt: new Date().toISOString(),
+  };
+}

@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
-import { addServerDocument, addServerMessage, readPortalData } from "@/lib/portal-server-store";
+import { DOCUMENT_CATEGORIES } from "@/data/client-portal";
+import { addServerDocument, addServerMessage, updatePortalItem } from "@/lib/portal-server-store";
 import type { DocumentCategory } from "@/types/client-portal";
 
-const DOC_CATEGORIES: DocumentCategory[] = [
-  "W-2 & Income",
-  "1099 Forms",
-  "Receipts & Expenses",
-  "Business Records",
-  "Prior Returns",
-  "Legal & IRS",
-  "Other",
-];
-
 export async function GET() {
+  const { readPortalData } = await import("@/lib/portal-server-store");
   const data = await readPortalData();
   return NextResponse.json(data);
 }
@@ -20,17 +12,19 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
-      action: "document" | "message";
+      action: "document" | "message" | "checklist";
       name?: string;
       category?: DocumentCategory;
       size?: number;
       taxYear?: number;
       subject?: string;
       text?: string;
+      id?: string;
+      done?: boolean;
     };
 
     if (body.action === "document") {
-      if (!body.name?.trim() || !body.category || !DOC_CATEGORIES.includes(body.category)) {
+      if (!body.name?.trim() || !body.category || !DOCUMENT_CATEGORIES.includes(body.category)) {
         return NextResponse.json({ error: "Invalid document data." }, { status: 400 });
       }
       const doc = await addServerDocument({
@@ -53,6 +47,15 @@ export async function POST(request: Request) {
         read: true,
       });
       return NextResponse.json({ message: msg });
+    }
+
+    if (body.action === "checklist") {
+      if (!body.id) {
+        return NextResponse.json({ error: "Checklist item id required." }, { status: 400 });
+      }
+      const ok = await updatePortalItem("checklist", body.id, { done: Boolean(body.done) });
+      if (!ok) return NextResponse.json({ error: "Checklist update failed." }, { status: 400 });
+      return NextResponse.json({ ok: true });
     }
 
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
