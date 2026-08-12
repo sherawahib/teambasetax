@@ -79,6 +79,29 @@ export async function fetchAdminClients() {
   return res.json() as Promise<{ clients: import("@/types/client-portal").PortalUser[] }>;
 }
 
+export async function fetchAdminClientDetail(id: string) {
+  const res = await fetch(`/api/admin/clients?id=${encodeURIComponent(id)}`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to load client detail");
+  return res.json() as Promise<import("@/lib/portal-clients-store").PortalClientDetail>;
+}
+
+export async function downloadAdminDocument(id: string, fileName: string) {
+  const session = getAdminSession();
+  const res = await fetch(`/api/admin/documents/${encodeURIComponent(id)}`, {
+    headers: session ? { "x-admin-token": session.token } : {},
+  });
+  if (!res.ok) throw new Error("Download failed");
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function deleteClient(id: string) {
   const res = await fetch("/api/admin/clients", {
     method: "DELETE",

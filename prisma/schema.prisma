@@ -20,27 +20,36 @@ model Testimonial {
 }
 
 model PortalClient {
-  id              String   @id
+  id              String           @id
   name            String
-  email           String   @unique
+  email           String           @unique
   phone           String
   accountType     String
   clientSince     String
   passwordHash    String
   salt            String
-  profileComplete Boolean  @default(false)
-  profileData     String   @default("{}")
-  createdAt       DateTime @default(now())
+  profileComplete Boolean          @default(false)
+  profileData     String           @default("{}")
+  createdAt       DateTime         @default(now())
+  documents       PortalDocument[]
 }
 
 model PortalDocument {
-  id         String   @id
-  name       String
-  category   String
-  size       Int
-  taxYear    Int
-  status     String
-  uploadedAt DateTime @default(now())
+  id              String       @id
+  clientId        String
+  client          PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name            String
+  category        String
+  size            Int
+  taxYear         Int
+  status          String
+  checklistItemId String?
+  mimeType        String       @default("application/octet-stream")
+  /// Base64 file payload for admin download (omit from list APIs when large)
+  fileData        String?
+  uploadedAt      DateTime     @default(now())
+
+  @@index([clientId])
 }
 
 model PortalMessage {

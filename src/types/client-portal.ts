@@ -44,6 +44,8 @@ export type DocumentCategory =
 
 export type PortalDocument = {
   id: string;
+  clientId?: string;
+  clientName?: string;
   name: string;
   category: DocumentCategory;
   size: number;
@@ -51,6 +53,9 @@ export type PortalDocument = {
   taxYear: number;
   status: "received" | "reviewing" | "approved" | "needs-action";
   checklistItemId?: string;
+  mimeType?: string;
+  /** True when file bytes are stored and can be downloaded by admin */
+  hasFile?: boolean;
 };
 
 export type TaxReturnStatus = {

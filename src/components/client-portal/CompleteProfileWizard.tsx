@@ -247,6 +247,7 @@ export default function CompleteProfileWizard({ session, onComplete, allowSkip, 
       size: file.size,
       taxYear: new Date().getFullYear(),
       checklistItemId: slot.checklistId,
+      file,
     });
     setUploadTick((n) => n + 1);
   }

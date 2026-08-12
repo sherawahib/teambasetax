@@ -1,7 +1,15 @@
-import type { ClientTaxProfile, PortalUser } from "@/types/client-portal";
+import type { ClientTaxProfile, PortalDocument, PortalUser } from "@/types/client-portal";
 import { emptyClientTaxProfile } from "@/types/client-portal";
 import { hashPassword, newSalt } from "@/lib/password";
+import { listClientDocuments } from "@/lib/portal-server-store";
 import { prisma } from "@/lib/prisma";
+
+export type PortalClientDetail = {
+  user: PortalUser;
+  profile: ClientTaxProfile;
+  documents: PortalDocument[];
+  createdAt: string;
+};
 
 function parseProfile(raw: string | null | undefined): ClientTaxProfile {
   try {
@@ -110,6 +118,18 @@ export async function saveClientProfile(
   });
 
   return { user: toPublicUser(updated), profile: next };
+}
+
+export async function getPortalClientDetail(id: string): Promise<PortalClientDetail | null> {
+  const client = await prisma.portalClient.findUnique({ where: { id } });
+  if (!client) return null;
+  const documents = await listClientDocuments(client.id);
+  return {
+    user: toPublicUser(client),
+    profile: parseProfile(client.profileData),
+    documents,
+    createdAt: client.createdAt.toISOString(),
+  };
 }
 
 export async function deletePortalClient(id: string): Promise<boolean> {

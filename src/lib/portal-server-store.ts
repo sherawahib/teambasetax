@@ -21,10 +21,48 @@ export type ServerPortalData = {
   checklist: ChecklistItem[];
 };
 
-export async function readPortalData(): Promise<ServerPortalData> {
+const MAX_FILE_BYTES = 4 * 1024 * 1024; // 4MB base64 storage limit
+
+function mapDocument(
+  d: {
+    id: string;
+    clientId: string;
+    name: string;
+    category: string;
+    size: number;
+    taxYear: number;
+    status: string;
+    checklistItemId: string | null;
+    mimeType: string;
+    fileData: string | null;
+    uploadedAt: Date;
+  },
+  clientName?: string,
+): PortalDocument {
+  return {
+    id: d.id,
+    clientId: d.clientId,
+    clientName,
+    name: d.name,
+    category: d.category as PortalDocument["category"],
+    size: d.size,
+    taxYear: d.taxYear,
+    status: d.status as PortalDocument["status"],
+    checklistItemId: d.checklistItemId ?? undefined,
+    mimeType: d.mimeType,
+    hasFile: Boolean(d.fileData),
+    uploadedAt: d.uploadedAt.toISOString(),
+  };
+}
+
+export async function readPortalData(clientId?: string): Promise<ServerPortalData> {
   const [documents, taxReturns, messages, appointments, invoices, irsNotices, legalCases, checklist] =
     await Promise.all([
-      prisma.portalDocument.findMany({ orderBy: { uploadedAt: "desc" } }),
+      prisma.portalDocument.findMany({
+        where: clientId ? { clientId } : undefined,
+        orderBy: { uploadedAt: "desc" },
+        include: { client: { select: { name: true, email: true } } },
+      }),
       prisma.portalTaxReturn.findMany({ orderBy: { year: "desc" } }),
       prisma.portalMessage.findMany({ orderBy: { sentAt: "desc" } }),
       prisma.portalAppointment.findMany({ orderBy: { date: "desc" } }),
@@ -35,15 +73,9 @@ export async function readPortalData(): Promise<ServerPortalData> {
     ]);
 
   return {
-    documents: documents.map((d) => ({
-      id: d.id,
-      name: d.name,
-      category: d.category as PortalDocument["category"],
-      size: d.size,
-      taxYear: d.taxYear,
-      status: d.status as PortalDocument["status"],
-      uploadedAt: d.uploadedAt.toISOString(),
-    })),
+    documents: documents.map((d) =>
+      mapDocument(d, d.client ? `${d.client.name} (${d.client.email})` : undefined),
+    ),
     taxReturns: taxReturns.map((t) => ({
       year: t.year,
       type: t.type,
@@ -104,26 +136,59 @@ export async function readPortalData(): Promise<ServerPortalData> {
   };
 }
 
-export async function addServerDocument(doc: Omit<PortalDocument, "id" | "uploadedAt" | "status">) {
+export async function listClientDocuments(clientId: string): Promise<PortalDocument[]> {
+  const rows = await prisma.portalDocument.findMany({
+    where: { clientId },
+    orderBy: { uploadedAt: "desc" },
+  });
+  return rows.map((d) => mapDocument(d));
+}
+
+export async function addServerDocument(doc: {
+  clientId: string;
+  name: string;
+  category: string;
+  size: number;
+  taxYear: number;
+  checklistItemId?: string;
+  mimeType?: string;
+  fileData?: string;
+}): Promise<PortalDocument> {
+  if (!doc.clientId?.trim()) {
+    throw new Error("clientId is required");
+  }
+  if (doc.fileData && Buffer.byteLength(doc.fileData, "utf8") > MAX_FILE_BYTES * 1.4) {
+    throw new Error("File too large (max 4MB)");
+  }
+
   const row = await prisma.portalDocument.create({
     data: {
-      id: `d-${Date.now()}`,
+      id: `d-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      clientId: doc.clientId,
       name: doc.name,
       category: doc.category,
       size: doc.size,
       taxYear: doc.taxYear,
       status: "received",
+      checklistItemId: doc.checklistItemId ?? null,
+      mimeType: doc.mimeType ?? "application/octet-stream",
+      fileData: doc.fileData ?? null,
     },
   });
-  return {
-    id: row.id,
-    name: row.name,
-    category: row.category as PortalDocument["category"],
-    size: row.size,
-    taxYear: row.taxYear,
-    status: row.status as PortalDocument["status"],
-    uploadedAt: row.uploadedAt.toISOString(),
-  };
+  return mapDocument(row);
+}
+
+export async function getDocumentFile(id: string) {
+  return prisma.portalDocument.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      mimeType: true,
+      fileData: true,
+      clientId: true,
+    },
+  });
 }
 
 export async function addServerMessage(msg: Omit<PortalMessage, "id" | "sentAt">) {
@@ -227,3 +292,5 @@ export async function updatePortalItem(
     return false;
   }
 }
+
+export { MAX_FILE_BYTES };

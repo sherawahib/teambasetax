@@ -258,7 +258,13 @@ export function getPortalData(): PortalData {
 
 export async function fetchPortalDataFromServer(): Promise<PortalData> {
   try {
-    const res = await fetch("/api/portal");
+    const session = getSession();
+    const qs = session?.user?.id
+      ? `?clientId=${encodeURIComponent(session.user.id)}`
+      : session?.user?.email
+        ? `?email=${encodeURIComponent(session.user.email)}`
+        : "";
+    const res = await fetch(`/api/portal${qs}`);
     if (res.ok) {
       serverCache = (await res.json()) as PortalData;
       return serverCache;
@@ -277,15 +283,34 @@ export function savePortalData(data: PortalData) {
   writeData(data);
 }
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result ?? "");
+      const base64 = result.includes(",") ? result.split(",")[1] : result;
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function addDocument(
-  doc: Omit<PortalDocument, "id" | "uploadedAt" | "status"> & { checklistItemId?: string },
+  doc: Omit<PortalDocument, "id" | "uploadedAt" | "status"> & {
+    checklistItemId?: string;
+    file?: File;
+  },
 ) {
+  const session = getSession();
   const data = readData();
   const newDoc: PortalDocument = {
     ...doc,
+    clientId: session?.user.id,
     id: `d${Date.now()}`,
     uploadedAt: new Date().toISOString(),
     status: "received",
+    hasFile: Boolean(doc.file),
   };
   data.documents.unshift(newDoc);
 
@@ -297,25 +322,47 @@ export function addDocument(
 
   writeData(data);
 
-  fetch("/api/portal", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action: "document",
-      name: doc.name,
-      category: doc.category,
-      size: doc.size,
-      taxYear: doc.taxYear,
-    }),
-  }).then(() => {
+  void (async () => {
+    let fileData: string | undefined;
+    if (doc.file) {
+      try {
+        if (doc.file.size > 4 * 1024 * 1024) {
+          console.warn("File exceeds 4MB; uploading metadata only.");
+        } else {
+          fileData = await fileToBase64(doc.file);
+        }
+      } catch {
+        /* metadata-only fallback */
+      }
+    }
+
+    await fetch("/api/portal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "document",
+        clientId: session?.user.id,
+        email: session?.user.email,
+        name: doc.name,
+        category: doc.category,
+        size: doc.size,
+        taxYear: doc.taxYear,
+        checklistItemId: doc.checklistItemId,
+        mimeType: doc.file?.type || "application/octet-stream",
+        fileData,
+      }),
+    });
+
     if (doc.checklistItemId) {
-      return fetch("/api/portal", {
+      await fetch("/api/portal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "checklist", id: doc.checklistItemId, done: true }),
       });
     }
-  }).then(() => fetchPortalDataFromServer());
+
+    await fetchPortalDataFromServer();
+  })();
 
   return newDoc;
 }

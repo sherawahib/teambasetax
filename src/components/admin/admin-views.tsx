@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Trash2 } from "lucide-react";
 import { StarRatingDisplay } from "@/components/StarRating";
 import { formatDate, formatDateTime } from "@/lib/client-portal-store";
 import {
   deleteFeedback,
   deletePortalItem,
   deleteClient,
+  downloadAdminDocument,
+  fetchAdminClientDetail,
   fetchAdminClients,
   fetchAdminPortalData,
   fetchAdminTestimonials,
   sendAdminReply,
   updatePortalItem,
 } from "@/lib/admin-store";
+import type { PortalClientDetail } from "@/lib/portal-clients-store";
 import type { ServerPortalData } from "@/lib/portal-server-store";
 import type { Testimonial } from "@/types/testimonial";
 import { AdminCard, DeleteButton, StatusBadge } from "./admin-ui";
@@ -225,69 +228,108 @@ export function AdminDocumentsView({ onRefresh, refreshKey }: ViewProps) {
     onRefresh();
   }
 
+  async function handleDownload(id: string, name: string) {
+    try {
+      await downloadAdminDocument(id, name);
+    } catch {
+      alert("File not available for download (metadata only).");
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">Client Documents</h2>
-        <p className="text-sm text-muted mt-1">Review uploaded files and update review status.</p>
+        <p className="text-sm text-muted mt-1">Review uploaded files by client and update review status.</p>
       </div>
       <AdminCard title="Document Library">
-        <div className="space-y-3 md:hidden">
-          {documents.map((doc) => (
-            <div key={doc.id} className="rounded-lg border border-border p-3">
-              <p className="break-words text-sm font-medium text-foreground">{doc.name}</p>
-              <p className="mt-1 text-xs text-muted">{doc.category}</p>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                <select
-                  value={doc.status}
-                  onChange={(e) => setStatus(doc.id, e.target.value)}
-                  className="min-h-11 rounded border border-border bg-surface-elevated px-2 py-1 text-base sm:text-sm"
-                >
-                  {["received", "reviewing", "approved", "needs-action"].map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-                <DeleteButton onClick={() => handleDelete(doc.id)} />
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="-mx-4 hidden overflow-x-auto px-4 md:block sm:mx-0 sm:px-0">
-          <table className="w-full min-w-[480px] text-sm">
-            <thead>
-              <tr className="text-left text-muted border-b border-border">
-                <th className="pb-2 font-medium">File</th>
-                <th className="pb-2 font-medium">Category</th>
-                <th className="pb-2 font-medium">Status</th>
-                <th className="pb-2 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        {documents.length === 0 ? (
+          <p className="text-sm text-muted">No documents uploaded yet.</p>
+        ) : (
+          <>
+            <div className="space-y-3 md:hidden">
               {documents.map((doc) => (
-                <tr key={doc.id} className="border-b border-border last:border-0">
-                  <td className="py-3 font-medium">{doc.name}</td>
-                  <td className="py-3 text-muted">{doc.category}</td>
-                  <td className="py-3">
+                <div key={doc.id} className="rounded-lg border border-border p-3">
+                  <p className="break-words text-sm font-medium text-foreground">{doc.name}</p>
+                  <p className="mt-1 text-xs text-muted">{doc.clientName || "Unknown client"}</p>
+                  <p className="mt-1 text-xs text-muted">{doc.category} · TY {doc.taxYear}</p>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                     <select
                       value={doc.status}
                       onChange={(e) => setStatus(doc.id, e.target.value)}
-                      className="rounded border border-border px-2 py-1 text-xs bg-surface-elevated"
+                      className="min-h-11 rounded border border-border bg-surface-elevated px-2 py-1 text-base sm:text-sm"
                     >
                       {["received", "reviewing", "approved", "needs-action"].map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
+                        <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
-                  </td>
-                  <td className="py-3">
-                    <DeleteButton onClick={() => handleDelete(doc.id)} />
-                  </td>
-                </tr>
+                    <div className="flex gap-2">
+                      {doc.hasFile && (
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(doc.id, doc.name)}
+                          className="inline-flex min-h-11 items-center gap-1 rounded border border-border px-2 text-xs font-medium hover:border-gold"
+                        >
+                          <Download className="h-3.5 w-3.5" /> Download
+                        </button>
+                      )}
+                      <DeleteButton onClick={() => handleDelete(doc.id)} />
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+            <div className="-mx-4 hidden overflow-x-auto px-4 md:block sm:mx-0 sm:px-0">
+              <table className="w-full min-w-[640px] text-sm">
+                <thead>
+                  <tr className="text-left text-muted border-b border-border">
+                    <th className="pb-2 font-medium">Client</th>
+                    <th className="pb-2 font-medium">File</th>
+                    <th className="pb-2 font-medium">Category</th>
+                    <th className="pb-2 font-medium">Status</th>
+                    <th className="pb-2 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {documents.map((doc) => (
+                    <tr key={doc.id} className="border-b border-border last:border-0">
+                      <td className="py-3 text-muted text-xs max-w-[160px] truncate">{doc.clientName || "—"}</td>
+                      <td className="py-3 font-medium">{doc.name}</td>
+                      <td className="py-3 text-muted">{doc.category}</td>
+                      <td className="py-3">
+                        <select
+                          value={doc.status}
+                          onChange={(e) => setStatus(doc.id, e.target.value)}
+                          className="rounded border border-border px-2 py-1 text-xs bg-surface-elevated"
+                        >
+                          {["received", "reviewing", "approved", "needs-action"].map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="py-3">
+                        <div className="flex items-center gap-2">
+                          {doc.hasFile && (
+                            <button
+                              type="button"
+                              onClick={() => handleDownload(doc.id, doc.name)}
+                              className="inline-flex items-center gap-1 text-xs text-gold hover:underline"
+                            >
+                              <Download className="h-3.5 w-3.5" /> Download
+                            </button>
+                          )}
+                          <DeleteButton onClick={() => handleDelete(doc.id)} />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </AdminCard>
     </div>
   );
@@ -508,24 +550,224 @@ export function AdminIrsLegalView({ onRefresh, refreshKey }: ViewProps) {
   );
 }
 
+function ProfileField({ label, value }: { label: string; value?: string | number | boolean | null }) {
+  const display =
+    value === undefined || value === null || value === ""
+      ? "—"
+      : typeof value === "boolean"
+        ? value
+          ? "Yes"
+          : "No"
+        : String(value);
+  return (
+    <div className="min-w-0">
+      <p className="text-[11px] uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-0.5 break-words text-sm text-foreground">{display}</p>
+    </div>
+  );
+}
+
 export function AdminClientsView({ onRefresh, refreshKey }: ViewProps) {
   const [clients, setClients] = useState<import("@/types/client-portal").PortalUser[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<PortalClientDetail | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdminClients().then((d) => setClients(d.clients));
   }, [refreshKey]);
 
+  useEffect(() => {
+    if (!selectedId) {
+      setDetail(null);
+      return;
+    }
+    setLoadingDetail(true);
+    setDetailError(null);
+    fetchAdminClientDetail(selectedId)
+      .then(setDetail)
+      .catch(() => setDetailError("Failed to load client details."))
+      .finally(() => setLoadingDetail(false));
+  }, [selectedId, refreshKey]);
+
   async function handleDelete(id: string) {
-    if (!confirm("Remove this client account?")) return;
+    if (!confirm("Remove this client account and all their documents?")) return;
     await deleteClient(id);
+    if (selectedId === id) setSelectedId(null);
     onRefresh();
+  }
+
+  async function handleDocStatus(id: string, status: string) {
+    await updatePortalItem("documents", id, { status });
+    onRefresh();
+  }
+
+  async function handleDocDelete(id: string) {
+    if (!confirm("Delete this document?")) return;
+    await deletePortalItem("documents", id);
+    onRefresh();
+  }
+
+  async function handleDownload(id: string, name: string) {
+    try {
+      await downloadAdminDocument(id, name);
+    } catch {
+      alert("File not available for download.");
+    }
+  }
+
+  if (selectedId) {
+    const p = detail?.profile;
+    const u = detail?.user;
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <button
+              type="button"
+              onClick={() => setSelectedId(null)}
+              className="mb-2 inline-flex items-center gap-1 text-sm text-gold hover:underline"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back to clients
+            </button>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+              {u?.name || "Client profile"}
+            </h2>
+            <p className="text-sm text-muted mt-1">
+              Full tax checklist profile and uploaded documents for this client.
+            </p>
+          </div>
+          {u && u.id !== "client-demo" && (
+            <DeleteButton onClick={() => handleDelete(u.id)} label="Remove Account" />
+          )}
+        </div>
+
+        {loadingDetail && <p className="text-sm text-muted">Loading client details…</p>}
+        {detailError && <p className="text-sm text-red-600">{detailError}</p>}
+
+        {detail && u && p && (
+          <>
+            <AdminCard title="Account">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <ProfileField label="Name" value={u.name} />
+                <ProfileField label="Email" value={u.email} />
+                <ProfileField label="Phone" value={u.phone} />
+                <ProfileField label="Account type" value={u.accountType} />
+                <ProfileField label="Client since" value={u.clientSince} />
+                <ProfileField label="Profile complete" value={u.profileComplete} />
+                <ProfileField label="Registered" value={formatDateTime(detail.createdAt)} />
+                <ProfileField label="Profile updated" value={p.updatedAt ? formatDateTime(p.updatedAt) : "—"} />
+              </div>
+            </AdminCard>
+
+            <AdminCard title="Personal / Tax ID">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <ProfileField label="Taxpayer name" value={p.taxpayerFullName} />
+                <ProfileField label="Spouse name" value={p.spouseFullName} />
+                <ProfileField label="Dependents" value={p.dependents} />
+                <ProfileField label="Mailing address" value={p.mailingAddress} />
+                <ProfileField label="City" value={p.city} />
+                <ProfileField label="State" value={p.state} />
+                <ProfileField label="ZIP" value={p.zip} />
+                <ProfileField label="Taxpayer SSN" value={p.taxpayerSsn} />
+                <ProfileField label="Spouse SSN" value={p.spouseSsn} />
+                <ProfileField label="Dependents SSN" value={p.dependentsSsn} />
+                <ProfileField label="Taxpayer DOB" value={p.taxpayerDob} />
+                <ProfileField label="Spouse DOB" value={p.spouseDob} />
+                <ProfileField label="Dependents DOB" value={p.dependentsDob} />
+              </div>
+            </AdminCard>
+
+            <AdminCard title="Business">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <ProfileField label="Business name" value={p.businessName} />
+                <ProfileField label="Business address" value={p.businessAddress} />
+                <ProfileField label="EIN" value={p.ein} />
+                <ProfileField label="Principal activity" value={p.principalActivity} />
+                <ProfileField label="Income notes" value={p.businessIncomeNotes} />
+              </div>
+            </AdminCard>
+
+            <AdminCard title="Vehicle">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <ProfileField label="Make" value={p.vehicleMake} />
+                <ProfileField label="Model" value={p.vehicleModel} />
+                <ProfileField label="Year" value={p.vehicleYear} />
+                <ProfileField label="Purchase date" value={p.purchaseDate} />
+                <ProfileField label="Purchase amount" value={p.purchaseAmount} />
+                <ProfileField label="Total miles" value={p.totalMiles} />
+                <ProfileField label="Business miles" value={p.businessMiles} />
+                <ProfileField label="Registration date" value={p.registrationDate} />
+                <ProfileField label="Registration cost" value={p.registrationCost} />
+              </div>
+            </AdminCard>
+
+            <AdminCard title="Client notes">
+              <p className="whitespace-pre-wrap text-sm text-foreground">
+                {p.clientNotes?.trim() || "—"}
+              </p>
+            </AdminCard>
+
+            <AdminCard title={`Documents (${detail.documents.length})`}>
+              {detail.documents.length === 0 ? (
+                <p className="text-sm text-muted">This client has not uploaded any documents yet.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {detail.documents.map((doc) => (
+                    <li
+                      key={doc.id}
+                      className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <p className="break-words text-sm font-medium">{doc.name}</p>
+                        <p className="text-xs text-muted">
+                          {doc.category} · TY {doc.taxYear} · {formatDate(doc.uploadedAt)}
+                          {doc.checklistItemId ? ` · checklist ${doc.checklistItemId}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <select
+                          value={doc.status}
+                          onChange={(e) => handleDocStatus(doc.id, e.target.value)}
+                          className="min-h-11 rounded border border-border bg-surface-elevated px-2 py-1 text-sm"
+                        >
+                          {["received", "reviewing", "approved", "needs-action"].map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                        {doc.hasFile && (
+                          <button
+                            type="button"
+                            onClick={() => handleDownload(doc.id, doc.name)}
+                            className="inline-flex min-h-11 items-center gap-1 rounded border border-border px-2 text-xs font-medium hover:border-gold"
+                          >
+                            <Download className="h-3.5 w-3.5" /> Download
+                          </button>
+                        )}
+                        <DeleteButton onClick={() => handleDocDelete(doc.id)} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </AdminCard>
+          </>
+        )}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">Client Accounts</h2>
-        <p className="text-sm text-muted mt-1">Registered client portal users.</p>
+        <p className="text-sm text-muted mt-1">
+          Open any client to see their full tax profile and uploaded documents.
+        </p>
       </div>
       <AdminCard title={`Registered Clients (${clients.length})`}>
         {clients.length === 0 ? (
@@ -533,12 +775,27 @@ export function AdminClientsView({ onRefresh, refreshKey }: ViewProps) {
         ) : (
           <ul className="space-y-2">
             {clients.map((c) => (
-              <li key={c.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-border">
-                <div className="min-w-0">
-                  <p className="font-medium text-sm">{c.name}</p>
+              <li
+                key={c.id}
+                className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <button
+                  type="button"
+                  onClick={() => setSelectedId(c.id)}
+                  className="min-w-0 flex-1 text-left hover:opacity-90"
+                >
+                  <p className="font-medium text-sm text-foreground">{c.name}</p>
                   <p className="break-all text-xs text-muted">{c.email}</p>
-                  <p className="text-xs text-muted">{c.phone} · {c.accountType} · Since {c.clientSince}</p>
-                </div>
+                  <p className="text-xs text-muted">
+                    {c.phone} · {c.accountType} · Since {c.clientSince} ·{" "}
+                    {c.profileComplete ? (
+                      <span className="text-emerald-700">Profile complete</span>
+                    ) : (
+                      <span className="text-amber-700">Profile incomplete</span>
+                    )}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-gold">View full profile & documents →</p>
+                </button>
                 {c.id !== "client-demo" && (
                   <DeleteButton onClick={() => handleDelete(c.id)} label="Remove Account" />
                 )}

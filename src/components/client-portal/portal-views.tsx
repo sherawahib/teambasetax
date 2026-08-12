@@ -140,7 +140,7 @@ export function DocumentsView({ onRefresh }: PortalViewProps) {
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    addDocument({ name: file.name, category, size: file.size, taxYear });
+    addDocument({ name: file.name, category, size: file.size, taxYear, file });
     onRefresh();
     e.target.value = "";
   }

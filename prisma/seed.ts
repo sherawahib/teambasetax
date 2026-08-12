@@ -101,25 +101,42 @@ async function main() {
   const docs = [
     {
       id: "d1",
+      clientId: "client-demo",
       name: "W2_Employer_2025.pdf",
       category: "W-2 & Income",
       size: 245000,
       taxYear: 2025,
       status: "approved",
+      checklistItemId: null as string | null,
+      mimeType: "application/pdf",
+      fileData: null as string | null,
       uploadedAt: new Date("2026-01-28T10:00:00.000Z"),
     },
     {
       id: "d2",
+      clientId: "client-demo",
       name: "1099-NEC_Freelance_2025.pdf",
       category: "1099 Forms",
       size: 189000,
       taxYear: 2025,
       status: "reviewing",
+      checklistItemId: null as string | null,
+      mimeType: "application/pdf",
+      fileData: null as string | null,
       uploadedAt: new Date("2026-02-03T14:30:00.000Z"),
     },
   ];
   for (const d of docs) {
-    await prisma.portalDocument.upsert({ where: { id: d.id }, update: {}, create: d });
+    await prisma.portalDocument.upsert({
+      where: { id: d.id },
+      update: {
+        clientId: d.clientId,
+        name: d.name,
+        category: d.category,
+        status: d.status,
+      },
+      create: d,
+    });
   }
 
   const returns = [
