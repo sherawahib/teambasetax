@@ -14,6 +14,7 @@ import {
   fetchAdminClients,
   fetchAdminPortalData,
   fetchAdminTestimonials,
+  createAdminTaxReturn,
   sendAdminReply,
   updatePortalItem,
 } from "@/lib/admin-store";
@@ -138,20 +139,35 @@ export function AdminFeedbackView({ onRefresh, refreshKey }: ViewProps) {
 
 export function AdminMessagesView({ onRefresh, refreshKey }: ViewProps) {
   const [messages, setMessages] = useState<ServerPortalData["messages"]>([]);
+  const [clients, setClients] = useState<import("@/types/client-portal").PortalUser[]>([]);
+  const [clientId, setClientId] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAdminPortalData().then((d) => setMessages(d.messages));
+    Promise.all([fetchAdminPortalData(), fetchAdminClients()]).then(([d, c]) => {
+      setMessages(d.messages);
+      setClients(c.clients);
+      if (!clientId && c.clients[0]) setClientId(c.clients[0].id);
+    });
   }, [refreshKey]);
 
   async function handleReply(e: React.FormEvent) {
     e.preventDefault();
-    if (!subject.trim() || !body.trim()) return;
-    await sendAdminReply(subject.trim(), body.trim());
-    setSubject("");
-    setBody("");
-    onRefresh();
+    setError(null);
+    if (!clientId || !subject.trim() || !body.trim()) {
+      setError("Select a client and enter subject + message.");
+      return;
+    }
+    try {
+      await sendAdminReply(subject.trim(), body.trim(), clientId);
+      setSubject("");
+      setBody("");
+      onRefresh();
+    } catch {
+      setError("Failed to send reply.");
+    }
   }
 
   async function handleDelete(id: string) {
@@ -164,11 +180,24 @@ export function AdminMessagesView({ onRefresh, refreshKey }: ViewProps) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">Client Messages</h2>
-        <p className="text-sm text-muted mt-1">View client messages and send firm replies.</p>
+        <p className="text-sm text-muted mt-1">Messages are per client. Pick a client to send a firm reply.</p>
       </div>
 
       <AdminCard title="Reply to Client">
         <form onSubmit={handleReply} className="space-y-3 max-w-xl">
+          <select
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm bg-surface-elevated min-h-11"
+            required
+          >
+            <option value="">Select client…</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} ({c.email})
+              </option>
+            ))}
+          </select>
           <input
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
@@ -184,27 +213,32 @@ export function AdminMessagesView({ onRefresh, refreshKey }: ViewProps) {
             className="w-full rounded-lg border border-border px-3 py-2.5 text-sm bg-surface-elevated resize-y"
             required
           />
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <button type="submit" className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light min-h-11">
             Send Reply
           </button>
         </form>
       </AdminCard>
 
-      <AdminCard title="All Messages">
-        <div className="space-y-3">
-          {messages.map((m) => (
-            <div key={m.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 p-3 rounded-lg border border-border">
-              <div>
-                <p className="font-medium text-sm">{m.subject}</p>
-                <p className="text-xs text-gold mt-0.5">
-                  {m.from === "firm" ? "Firm" : "Client"} · {formatDateTime(m.sentAt)}
-                </p>
-                <p className="text-sm text-slate-600 mt-2">{m.body}</p>
+      <AdminCard title={`All Messages (${messages.length})`}>
+        {messages.length === 0 ? (
+          <p className="text-sm text-muted">No messages yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {messages.map((m) => (
+              <div key={m.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 p-3 rounded-lg border border-border">
+                <div>
+                  <p className="font-medium text-sm">{m.subject}</p>
+                  <p className="text-xs text-gold mt-0.5">
+                    {m.clientName || "Client"} · {m.from === "firm" ? "Firm" : "Client"} · {formatDateTime(m.sentAt)}
+                  </p>
+                  <p className="text-sm text-slate-600 mt-2">{m.body}</p>
+                </div>
+                <DeleteButton onClick={() => handleDelete(m.id)} />
               </div>
-              <DeleteButton onClick={() => handleDelete(m.id)} />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </AdminCard>
     </div>
   );
@@ -337,13 +371,38 @@ export function AdminDocumentsView({ onRefresh, refreshKey }: ViewProps) {
 
 export function AdminTaxReturnsView({ onRefresh, refreshKey }: ViewProps) {
   const [returns, setReturns] = useState<ServerPortalData["taxReturns"]>([]);
+  const [clients, setClients] = useState<import("@/types/client-portal").PortalUser[]>([]);
+  const [form, setForm] = useState({
+    clientId: "",
+    year: String(new Date().getFullYear()),
+    type: "Individual (1040)",
+    status: "in-progress",
+    preparer: "Michael Reis, EA",
+  });
 
   useEffect(() => {
-    fetchAdminPortalData().then((d) => setReturns(d.taxReturns));
+    Promise.all([fetchAdminPortalData(), fetchAdminClients()]).then(([d, c]) => {
+      setReturns(d.taxReturns);
+      setClients(c.clients);
+      if (!form.clientId && c.clients[0]) setForm((f) => ({ ...f, clientId: c.clients[0].id }));
+    });
   }, [refreshKey]);
 
-  async function setStatus(year: number, status: string) {
-    await updatePortalItem("taxReturns", String(year), { status, lastUpdated: new Date().toISOString() });
+  async function setStatus(id: string, status: string) {
+    await updatePortalItem("taxReturns", id, { status, lastUpdated: new Date().toISOString() });
+    onRefresh();
+  }
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.clientId) return;
+    await createAdminTaxReturn({
+      clientId: form.clientId,
+      year: Number(form.year),
+      type: form.type,
+      status: form.status,
+      preparer: form.preparer,
+    });
     onRefresh();
   }
 
@@ -351,28 +410,71 @@ export function AdminTaxReturnsView({ onRefresh, refreshKey }: ViewProps) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">Tax Returns</h2>
-        <p className="text-sm text-muted mt-1">Update return preparation and filing status.</p>
+        <p className="text-sm text-muted mt-1">Create and update returns for each client.</p>
       </div>
+
+      <AdminCard title="Add Tax Return">
+        <form onSubmit={handleCreate} className="grid gap-3 sm:grid-cols-2 max-w-3xl">
+          <select
+            value={form.clientId}
+            onChange={(e) => setForm({ ...form, clientId: e.target.value })}
+            className="rounded-lg border border-border px-3 py-2.5 text-sm bg-surface-elevated min-h-11"
+            required
+          >
+            <option value="">Select client…</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          <input
+            type="number"
+            value={form.year}
+            onChange={(e) => setForm({ ...form, year: e.target.value })}
+            className="rounded-lg border border-border px-3 py-2.5 text-sm bg-surface-elevated min-h-11"
+            required
+          />
+          <input
+            value={form.type}
+            onChange={(e) => setForm({ ...form, type: e.target.value })}
+            className="rounded-lg border border-border px-3 py-2.5 text-sm bg-surface-elevated min-h-11"
+            required
+          />
+          <input
+            value={form.preparer}
+            onChange={(e) => setForm({ ...form, preparer: e.target.value })}
+            className="rounded-lg border border-border px-3 py-2.5 text-sm bg-surface-elevated min-h-11"
+            required
+          />
+          <button type="submit" className="sm:col-span-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white min-h-11 w-fit">
+            Create Return
+          </button>
+        </form>
+      </AdminCard>
+
       <div className="space-y-4">
-        {returns.map((ret) => (
-          <AdminCard key={ret.year} title={`Tax Year ${ret.year} — ${ret.type}`}>
-            <div className="flex flex-wrap items-center gap-3">
-              <StatusBadge status={ret.status} />
-              <select
-                value={ret.status}
-                onChange={(e) => setStatus(ret.year, e.target.value)}
-                className="rounded-lg border border-border px-3 py-2 text-sm bg-surface-elevated min-h-11"
-              >
-                {["not-started", "in-progress", "review", "filed", "accepted"].map((s) => (
-                  <option key={s} value={s}>
-                    {s.replace(/-/g, " ")}
-                  </option>
-                ))}
-              </select>
-              <span className="text-sm text-muted">Preparer: {ret.preparer}</span>
-            </div>
-          </AdminCard>
-        ))}
+        {returns.length === 0 ? (
+          <p className="text-sm text-muted">No tax returns yet. Create one for a client above.</p>
+        ) : (
+          returns.map((ret) => (
+            <AdminCard key={ret.id} title={`${ret.clientName || "Client"} — Tax Year ${ret.year}`}>
+              <div className="flex flex-wrap items-center gap-3">
+                <StatusBadge status={ret.status} />
+                <select
+                  value={ret.status}
+                  onChange={(e) => setStatus(ret.id, e.target.value)}
+                  className="rounded-lg border border-border px-3 py-2 text-sm bg-surface-elevated min-h-11"
+                >
+                  {["not-started", "in-progress", "review", "filed", "accepted"].map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/-/g, " ")}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-sm text-muted">{ret.type} · {ret.preparer}</span>
+              </div>
+            </AdminCard>
+          ))
+        )}
       </div>
     </div>
   );
@@ -406,6 +508,7 @@ export function AdminAppointmentsView({ onRefresh, refreshKey }: ViewProps) {
         {appointments.map((a) => (
           <AdminCard key={a.id} title={a.title}>
             <div className="flex flex-wrap items-center gap-3 text-sm">
+              <span className="text-gold text-xs font-medium">{a.clientName || "Client"}</span>
               <span>
                 {formatDate(a.date)} at {a.time}
               </span>
@@ -463,6 +566,7 @@ export function AdminBillingView({ onRefresh, refreshKey }: ViewProps) {
           >
             <div>
               <p className="font-medium">{inv.description}</p>
+              <p className="text-xs text-gold mt-0.5">{inv.clientName || "Client"}</p>
               <p className="text-sm text-muted">
                 Due {formatDate(inv.dueDate)} · ${inv.amount.toFixed(2)}
               </p>
@@ -754,6 +858,90 @@ export function AdminClientsView({ onRefresh, refreshKey }: ViewProps) {
                   ))}
                 </ul>
               )}
+            </AdminCard>
+
+            <AdminCard title={`Messages (${detail.messages.length})`}>
+              {detail.messages.length === 0 ? (
+                <p className="text-sm text-muted">No messages with this client yet.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {detail.messages.map((m) => (
+                    <li key={m.id} className="rounded-lg border border-border p-3">
+                      <p className="text-sm font-medium">{m.subject}</p>
+                      <p className="text-xs text-muted">
+                        {m.from === "firm" ? "Firm" : "Client"} · {formatDateTime(m.sentAt)}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">{m.body}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </AdminCard>
+
+            <AdminCard title={`Tax Returns (${detail.taxReturns.length})`}>
+              {detail.taxReturns.length === 0 ? (
+                <p className="text-sm text-muted">No returns assigned yet. Add from Tax Returns section.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {detail.taxReturns.map((ret) => (
+                    <li key={ret.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3">
+                      <div>
+                        <p className="text-sm font-medium">TY {ret.year} — {ret.type}</p>
+                        <p className="text-xs text-muted">{ret.preparer}</p>
+                      </div>
+                      <StatusBadge status={ret.status} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </AdminCard>
+
+            <AdminCard title={`Appointments (${detail.appointments.length})`}>
+              {detail.appointments.length === 0 ? (
+                <p className="text-sm text-muted">No appointments for this client.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {detail.appointments.map((a) => (
+                    <li key={a.id} className="rounded-lg border border-border p-3">
+                      <p className="text-sm font-medium">{a.title}</p>
+                      <p className="text-xs text-muted">
+                        {a.date} {a.time} · {a.type} · {a.status}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </AdminCard>
+
+            <AdminCard title={`Invoices (${detail.invoices.length})`}>
+              {detail.invoices.length === 0 ? (
+                <p className="text-sm text-muted">No invoices for this client.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {detail.invoices.map((inv) => (
+                    <li key={inv.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3">
+                      <div>
+                        <p className="text-sm font-medium">{inv.description}</p>
+                        <p className="text-xs text-muted">Due {inv.dueDate}</p>
+                      </div>
+                      <p className="text-sm font-semibold">${inv.amount.toFixed(2)} · {inv.status}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </AdminCard>
+
+            <AdminCard title={`Checklist progress (${detail.checklist.filter((c) => c.done).length}/${detail.checklist.length})`}>
+              <div className="grid gap-1 sm:grid-cols-2">
+                {detail.checklist.slice(0, 20).map((c) => (
+                  <p key={c.id} className={`text-xs ${c.done ? "text-emerald-700" : "text-muted"}`}>
+                    {c.done ? "✓" : "○"} {c.label}
+                  </p>
+                ))}
+                {detail.checklist.length > 20 && (
+                  <p className="text-xs text-muted sm:col-span-2">+{detail.checklist.length - 20} more items</p>
+                )}
+              </div>
             </AdminCard>
           </>
         )}

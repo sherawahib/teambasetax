@@ -16,7 +16,7 @@ import type {
 import { SEED_CHECKLIST } from "@/data/client-portal";
 
 const SESSION_KEY = "tbts-portal-session";
-const DATA_KEY = "tbts-portal-data-v2";
+const DATA_KEY = "tbts-portal-data-v3";
 
 type PortalData = {
   documents: PortalDocument[];
@@ -31,155 +31,25 @@ type PortalData = {
 
 let serverCache: PortalData | null = null;
 
-function seedData(): PortalData {
+/** Empty workspace — real data always comes from the server per client */
+function emptyData(): PortalData {
   return {
-    documents: [
-      {
-        id: "d1",
-        name: "W2_Employer_2025.pdf",
-        category: "W-2 & Income",
-        size: 245000,
-        uploadedAt: "2026-01-28T10:00:00.000Z",
-        taxYear: 2025,
-        status: "approved",
-      },
-      {
-        id: "d2",
-        name: "1099-NEC_Freelance_2025.pdf",
-        category: "1099 Forms",
-        size: 189000,
-        uploadedAt: "2026-02-03T14:30:00.000Z",
-        taxYear: 2025,
-        status: "reviewing",
-      },
-      {
-        id: "d3",
-        name: "Business_Expenses_Q4.xlsx",
-        category: "Business Records",
-        size: 520000,
-        uploadedAt: "2026-02-10T09:15:00.000Z",
-        taxYear: 2025,
-        status: "received",
-      },
-    ],
-    taxReturns: [
-      {
-        year: 2025,
-        type: "Individual (1040)",
-        status: "in-progress",
-        preparer: "Michael Reis, EA",
-        lastUpdated: "2026-02-12T16:00:00.000Z",
-      },
-      {
-        year: 2024,
-        type: "Individual (1040)",
-        status: "accepted",
-        filedDate: "2025-04-02",
-        refundEstimate: "$1,240 refund",
-        preparer: "Michael Reis, EA",
-        lastUpdated: "2025-05-15T11:00:00.000Z",
-      },
-      {
-        year: 2023,
-        type: "Individual (1040)",
-        status: "accepted",
-        filedDate: "2024-03-28",
-        preparer: "Michael Reis, EA",
-        lastUpdated: "2024-04-20T09:00:00.000Z",
-      },
-    ],
-    messages: [
-      {
-        id: "m1",
-        from: "firm",
-        subject: "2025 Tax Documents Received",
-        body: "We received your W-2 and 1099-NEC. Please upload your mortgage interest statement (1098) and any charitable contribution receipts when available.",
-        sentAt: "2026-02-04T11:30:00.000Z",
-        read: true,
-      },
-      {
-        id: "m2",
-        from: "firm",
-        subject: "Estimated Tax Reminder — Q1 Due April 15",
-        body: "Based on your 2025 income projections, your Q1 estimated payment may be required. Reply here or call us to review your safe harbor amounts.",
-        sentAt: "2026-02-14T09:00:00.000Z",
-        read: false,
-      },
-    ],
-    appointments: [
-      {
-        id: "a1",
-        title: "2025 Tax Return Review",
-        date: "2026-03-05",
-        time: "2:00 PM",
-        type: "In-Office",
-        status: "scheduled",
-        notes: "Bring photo ID and any remaining deduction documents.",
-      },
-      {
-        id: "a2",
-        title: "Retirement Planning Consultation",
-        date: "2026-01-22",
-        time: "10:30 AM",
-        type: "Virtual",
-        status: "completed",
-      },
-    ],
-    invoices: [
-      {
-        id: "inv1",
-        description: "2024 Individual Tax Preparation",
-        amount: 385,
-        dueDate: "2025-04-01",
-        status: "paid",
-        taxYear: 2024,
-      },
-      {
-        id: "inv2",
-        description: "2025 Individual Tax Preparation (estimate)",
-        amount: 425,
-        dueDate: "2026-04-15",
-        status: "pending",
-        taxYear: 2025,
-      },
-      {
-        id: "inv3",
-        description: "IRS Notice CP2000 Response",
-        amount: 275,
-        dueDate: "2026-02-28",
-        status: "due",
-      },
-    ],
-    irsNotices: [
-      {
-        id: "n1",
-        noticeNumber: "CP2000",
-        issueDate: "2026-01-18",
-        topic: "Income discrepancy — unreported 1099 income",
-        status: "in-representation",
-        responseDue: "2026-03-18",
-        assignedTo: "Michael Reis, EA",
-      },
-    ],
-    legalCases: [
-      {
-        id: "lc1",
-        title: "CP2000 Underreported Income Response",
-        category: "Audit",
-        status: "active",
-        openedDate: "2026-01-20",
-        nextStep: "Firm preparing response with supporting documentation — due March 18, 2026",
-      },
-    ],
-    checklist: SEED_CHECKLIST.map((item) => ({ ...item })),
+    documents: [],
+    taxReturns: [],
+    messages: [],
+    appointments: [],
+    invoices: [],
+    irsNotices: [],
+    legalCases: [],
+    checklist: SEED_CHECKLIST.map((item) => ({ ...item, done: false })),
   };
 }
 
 function readData(): PortalData {
-  if (typeof window === "undefined") return seedData();
+  if (typeof window === "undefined") return emptyData();
   const raw = localStorage.getItem(DATA_KEY);
   if (!raw) {
-    const seeded = seedData();
+    const seeded = emptyData();
     localStorage.setItem(DATA_KEY, JSON.stringify(seeded));
     return seeded;
   }
@@ -315,9 +185,14 @@ export function addDocument(
   data.documents.unshift(newDoc);
 
   if (doc.checklistItemId) {
-    data.checklist = data.checklist.map((item) =>
-      item.id === doc.checklistItemId ? { ...item, done: true } : item,
-    );
+    data.checklist = data.checklist.map((item) => {
+      const key = item.itemKey || item.id;
+      const match =
+        item.id === doc.checklistItemId ||
+        key === doc.checklistItemId ||
+        item.id.endsWith(`__${doc.checklistItemId}`);
+      return match ? { ...item, done: true } : item;
+    });
   }
 
   writeData(data);
@@ -352,14 +227,6 @@ export function addDocument(
         fileData,
       }),
     });
-
-    if (doc.checklistItemId) {
-      await fetch("/api/portal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "checklist", id: doc.checklistItemId, done: true }),
-      });
-    }
 
     await fetchPortalDataFromServer();
   })();
@@ -406,9 +273,11 @@ export async function saveTaxProfile(
 }
 
 export function sendMessage(subject: string, body: string) {
+  const session = getSession();
   const data = readData();
   const msg: PortalMessage = {
     id: `m${Date.now()}`,
+    clientId: session?.user.id,
     from: "client",
     subject,
     body,
@@ -421,7 +290,13 @@ export function sendMessage(subject: string, body: string) {
   fetch("/api/portal", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "message", subject, text: body }),
+    body: JSON.stringify({
+      action: "message",
+      clientId: session?.user.id,
+      email: session?.user.email,
+      subject,
+      text: body,
+    }),
   }).then(() => fetchPortalDataFromServer());
 
   return msg;
@@ -431,13 +306,35 @@ export function markMessagesRead() {
   const data = readData();
   data.messages = data.messages.map((m) => ({ ...m, read: true }));
   writeData(data);
+  if (serverCache) {
+    serverCache = { ...serverCache, messages: data.messages };
+  }
 }
 
 export function toggleChecklistItem(id: string) {
-  const data = readData();
-  data.checklist = data.checklist.map((item) => (item.id === id ? { ...item, done: !item.done } : item));
-  writeData(data);
-  return data.checklist;
+  const session = getSession();
+  const data = getPortalData();
+  const next = data.checklist.map((item) => (item.id === id ? { ...item, done: !item.done } : item));
+  const updatedItem = next.find((item) => item.id === id);
+  const patched = { ...data, checklist: next };
+  writeData(patched);
+  serverCache = patched;
+
+  const itemKey = updatedItem?.itemKey || (id.includes("__") ? id.split("__").pop()! : id);
+  fetch("/api/portal", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "checklist",
+      clientId: session?.user.id,
+      email: session?.user.email,
+      itemKey,
+      id,
+      done: updatedItem?.done,
+    }),
+  }).then(() => fetchPortalDataFromServer());
+
+  return next;
 }
 
 export function updateProfile(updates: Partial<Pick<PortalUser, "name" | "phone">>) {

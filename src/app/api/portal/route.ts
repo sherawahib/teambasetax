@@ -5,22 +5,32 @@ import {
   addServerMessage,
   MAX_FILE_BYTES,
   readPortalData,
+  setChecklistDoneByKey,
   updatePortalItem,
 } from "@/lib/portal-server-store";
-import { findClientByEmail } from "@/lib/portal-clients-store";
+import { ensureClientChecklist, findClientByEmail } from "@/lib/portal-clients-store";
 import type { DocumentCategory } from "@/types/client-portal";
+
+async function resolveClientId(clientId?: string, email?: string) {
+  if (clientId?.trim()) return clientId.trim();
+  if (email?.trim()) {
+    const client = await findClientByEmail(email.trim());
+    return client?.id;
+  }
+  return undefined;
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const clientId = searchParams.get("clientId")?.trim() || undefined;
+  const clientIdParam = searchParams.get("clientId")?.trim() || undefined;
   const email = searchParams.get("email")?.trim().toLowerCase();
 
-  let scopedClientId = clientId;
-  if (!scopedClientId && email) {
-    const client = await findClientByEmail(email);
-    scopedClientId = client?.id;
+  const scopedClientId = await resolveClientId(clientIdParam, email);
+  if (!scopedClientId) {
+    return NextResponse.json({ error: "clientId or email required." }, { status: 400 });
   }
 
+  await ensureClientChecklist(scopedClientId);
   const data = await readPortalData(scopedClientId);
   return NextResponse.json(data);
 }
@@ -41,23 +51,19 @@ export async function POST(request: Request) {
       subject?: string;
       text?: string;
       id?: string;
+      itemKey?: string;
       done?: boolean;
     };
+
+    const clientId = await resolveClientId(body.clientId, body.email);
+    if (!clientId) {
+      return NextResponse.json({ error: "Client id required." }, { status: 400 });
+    }
 
     if (body.action === "document") {
       if (!body.name?.trim() || !body.category || !DOCUMENT_CATEGORIES.includes(body.category)) {
         return NextResponse.json({ error: "Invalid document data." }, { status: 400 });
       }
-
-      let clientId = body.clientId?.trim();
-      if (!clientId && body.email) {
-        const client = await findClientByEmail(body.email);
-        clientId = client?.id;
-      }
-      if (!clientId) {
-        return NextResponse.json({ error: "Client id required to upload documents." }, { status: 400 });
-      }
-
       if (body.fileData && Buffer.byteLength(body.fileData, "utf8") > MAX_FILE_BYTES * 1.4) {
         return NextResponse.json({ error: "File too large (max 4MB)." }, { status: 400 });
       }
@@ -72,6 +78,10 @@ export async function POST(request: Request) {
         mimeType: body.mimeType,
         fileData: body.fileData,
       });
+
+      if (body.checklistItemId) {
+        await setChecklistDoneByKey(clientId, body.checklistItemId, true);
+      }
       return NextResponse.json({ document: doc });
     }
 
@@ -80,6 +90,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid message data." }, { status: 400 });
       }
       const msg = await addServerMessage({
+        clientId,
         from: "client",
         subject: body.subject.trim(),
         body: body.text.trim(),
@@ -89,11 +100,18 @@ export async function POST(request: Request) {
     }
 
     if (body.action === "checklist") {
-      if (!body.id) {
-        return NextResponse.json({ error: "Checklist item id required." }, { status: 400 });
+      const key = body.itemKey || body.id;
+      if (!key) {
+        return NextResponse.json({ error: "Checklist item key required." }, { status: 400 });
       }
-      const ok = await updatePortalItem("checklist", body.id, { done: Boolean(body.done) });
-      if (!ok) return NextResponse.json({ error: "Checklist update failed." }, { status: 400 });
+      // Support both template key (tc-p1) and full id (client__tc-p1)
+      const itemKey = key.includes("__") ? key.split("__").pop()! : key;
+      const ok = await setChecklistDoneByKey(clientId, itemKey, Boolean(body.done));
+      if (!ok) {
+        // try direct id update for older rows
+        const ok2 = await updatePortalItem("checklist", key, { done: Boolean(body.done) });
+        if (!ok2) return NextResponse.json({ error: "Checklist update failed." }, { status: 400 });
+      }
       return NextResponse.json({ ok: true });
     }
 

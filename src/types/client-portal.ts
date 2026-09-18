@@ -59,6 +59,9 @@ export type PortalDocument = {
 };
 
 export type TaxReturnStatus = {
+  id: string;
+  clientId?: string;
+  clientName?: string;
   year: number;
   type: string;
   status: "not-started" | "in-progress" | "review" | "filed" | "accepted";
@@ -70,6 +73,8 @@ export type TaxReturnStatus = {
 
 export type PortalMessage = {
   id: string;
+  clientId?: string;
+  clientName?: string;
   from: "client" | "firm";
   subject: string;
   body: string;
@@ -79,6 +84,8 @@ export type PortalMessage = {
 
 export type PortalAppointment = {
   id: string;
+  clientId?: string;
+  clientName?: string;
   title: string;
   date: string;
   time: string;
@@ -89,6 +96,8 @@ export type PortalAppointment = {
 
 export type PortalInvoice = {
   id: string;
+  clientId?: string;
+  clientName?: string;
   description: string;
   amount: number;
   dueDate: string;
@@ -98,6 +107,8 @@ export type PortalInvoice = {
 
 export type IrsNotice = {
   id: string;
+  clientId?: string;
+  clientName?: string;
   noticeNumber: string;
   issueDate: string;
   topic: string;
@@ -108,6 +119,8 @@ export type IrsNotice = {
 
 export type LegalCase = {
   id: string;
+  clientId?: string;
+  clientName?: string;
   title: string;
   category: "Audit" | "Collection" | "Penalty" | "Appeal" | "Entity" | "Estate";
   status: "active" | "monitoring" | "closed";
@@ -117,6 +130,7 @@ export type LegalCase = {
 
 export type ChecklistItem = {
   id: string;
+  itemKey?: string;
   label: string;
   category: string;
   done: boolean;

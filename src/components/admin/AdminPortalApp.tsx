@@ -57,10 +57,6 @@ export default function AdminPortalApp() {
 
   function refresh() {
     setRefreshKey((k) => k + 1);
-    import("@/lib/client-portal-store").then(({ clearPortalCache, fetchPortalDataFromServer }) => {
-      clearPortalCache();
-      fetchPortalDataFromServer();
-    });
   }
 
   function handleLogout() {

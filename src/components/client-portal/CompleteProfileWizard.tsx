@@ -233,7 +233,13 @@ export default function CompleteProfileWizard({ session, onComplete, allowSkip, 
           fetch("/api/portal", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "checklist", id: m.id, done: true }),
+            body: JSON.stringify({
+              action: "checklist",
+              clientId: session.user.id,
+              email: session.user.email,
+              itemKey: m.id,
+              done: true,
+            }),
           }),
         ),
     );

@@ -21,7 +21,13 @@ export type ServerPortalData = {
   checklist: ChecklistItem[];
 };
 
-const MAX_FILE_BYTES = 4 * 1024 * 1024; // 4MB base64 storage limit
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
+
+type ClientRef = { name: true; email: true };
+
+function clientLabel(client?: { name: string; email: string } | null) {
+  return client ? `${client.name} (${client.email})` : undefined;
+}
 
 function mapDocument(
   d: {
@@ -36,13 +42,13 @@ function mapDocument(
     mimeType: string;
     fileData: string | null;
     uploadedAt: Date;
+    client?: { name: string; email: string } | null;
   },
-  clientName?: string,
 ): PortalDocument {
   return {
     id: d.id,
     clientId: d.clientId,
-    clientName,
+    clientName: clientLabel(d.client),
     name: d.name,
     category: d.category as PortalDocument["category"],
     size: d.size,
@@ -56,27 +62,58 @@ function mapDocument(
 }
 
 export async function readPortalData(clientId?: string): Promise<ServerPortalData> {
+  const where = clientId ? { clientId } : undefined;
+  const includeClient = { client: { select: { name: true, email: true } satisfies ClientRef } };
+
   const [documents, taxReturns, messages, appointments, invoices, irsNotices, legalCases, checklist] =
     await Promise.all([
       prisma.portalDocument.findMany({
-        where: clientId ? { clientId } : undefined,
+        where,
         orderBy: { uploadedAt: "desc" },
-        include: { client: { select: { name: true, email: true } } },
+        include: includeClient,
       }),
-      prisma.portalTaxReturn.findMany({ orderBy: { year: "desc" } }),
-      prisma.portalMessage.findMany({ orderBy: { sentAt: "desc" } }),
-      prisma.portalAppointment.findMany({ orderBy: { date: "desc" } }),
-      prisma.portalInvoice.findMany({ orderBy: { dueDate: "desc" } }),
-      prisma.portalIrsNotice.findMany({ orderBy: { issueDate: "desc" } }),
-      prisma.portalLegalCase.findMany({ orderBy: { openedDate: "desc" } }),
-      prisma.portalChecklistItem.findMany({ orderBy: { id: "asc" } }),
+      prisma.portalTaxReturn.findMany({
+        where,
+        orderBy: { year: "desc" },
+        include: includeClient,
+      }),
+      prisma.portalMessage.findMany({
+        where,
+        orderBy: { sentAt: "desc" },
+        include: includeClient,
+      }),
+      prisma.portalAppointment.findMany({
+        where,
+        orderBy: { date: "desc" },
+        include: includeClient,
+      }),
+      prisma.portalInvoice.findMany({
+        where,
+        orderBy: { dueDate: "desc" },
+        include: includeClient,
+      }),
+      prisma.portalIrsNotice.findMany({
+        where,
+        orderBy: { issueDate: "desc" },
+        include: includeClient,
+      }),
+      prisma.portalLegalCase.findMany({
+        where,
+        orderBy: { openedDate: "desc" },
+        include: includeClient,
+      }),
+      prisma.portalChecklistItem.findMany({
+        where,
+        orderBy: { itemKey: "asc" },
+      }),
     ]);
 
   return {
-    documents: documents.map((d) =>
-      mapDocument(d, d.client ? `${d.client.name} (${d.client.email})` : undefined),
-    ),
+    documents: documents.map(mapDocument),
     taxReturns: taxReturns.map((t) => ({
+      id: t.id,
+      clientId: t.clientId,
+      clientName: clientLabel(t.client),
       year: t.year,
       type: t.type,
       status: t.status as TaxReturnStatus["status"],
@@ -87,6 +124,8 @@ export async function readPortalData(clientId?: string): Promise<ServerPortalDat
     })),
     messages: messages.map((m) => ({
       id: m.id,
+      clientId: m.clientId,
+      clientName: clientLabel(m.client),
       from: m.from as PortalMessage["from"],
       subject: m.subject,
       body: m.body,
@@ -95,6 +134,8 @@ export async function readPortalData(clientId?: string): Promise<ServerPortalDat
     })),
     appointments: appointments.map((a) => ({
       id: a.id,
+      clientId: a.clientId,
+      clientName: clientLabel(a.client),
       title: a.title,
       date: a.date,
       time: a.time,
@@ -104,6 +145,8 @@ export async function readPortalData(clientId?: string): Promise<ServerPortalDat
     })),
     invoices: invoices.map((i) => ({
       id: i.id,
+      clientId: i.clientId,
+      clientName: clientLabel(i.client),
       description: i.description,
       amount: i.amount,
       dueDate: i.dueDate,
@@ -112,6 +155,8 @@ export async function readPortalData(clientId?: string): Promise<ServerPortalDat
     })),
     irsNotices: irsNotices.map((n) => ({
       id: n.id,
+      clientId: n.clientId,
+      clientName: clientLabel(n.client),
       noticeNumber: n.noticeNumber,
       issueDate: n.issueDate,
       topic: n.topic,
@@ -121,6 +166,8 @@ export async function readPortalData(clientId?: string): Promise<ServerPortalDat
     })),
     legalCases: legalCases.map((c) => ({
       id: c.id,
+      clientId: c.clientId,
+      clientName: clientLabel(c.client),
       title: c.title,
       category: c.category as LegalCase["category"],
       status: c.status as LegalCase["status"],
@@ -129,6 +176,7 @@ export async function readPortalData(clientId?: string): Promise<ServerPortalDat
     })),
     checklist: checklist.map((c) => ({
       id: c.id,
+      itemKey: c.itemKey,
       label: c.label,
       category: c.category,
       done: c.done,
@@ -141,7 +189,7 @@ export async function listClientDocuments(clientId: string): Promise<PortalDocum
     where: { clientId },
     orderBy: { uploadedAt: "desc" },
   });
-  return rows.map((d) => mapDocument(d));
+  return rows.map(mapDocument);
 }
 
 export async function addServerDocument(doc: {
@@ -154,9 +202,7 @@ export async function addServerDocument(doc: {
   mimeType?: string;
   fileData?: string;
 }): Promise<PortalDocument> {
-  if (!doc.clientId?.trim()) {
-    throw new Error("clientId is required");
-  }
+  if (!doc.clientId?.trim()) throw new Error("clientId is required");
   if (doc.fileData && Buffer.byteLength(doc.fileData, "utf8") > MAX_FILE_BYTES * 1.4) {
     throw new Error("File too large (max 4MB)");
   }
@@ -181,34 +227,124 @@ export async function addServerDocument(doc: {
 export async function getDocumentFile(id: string) {
   return prisma.portalDocument.findUnique({
     where: { id },
-    select: {
-      id: true,
-      name: true,
-      mimeType: true,
-      fileData: true,
-      clientId: true,
-    },
+    select: { id: true, name: true, mimeType: true, fileData: true, clientId: true },
   });
 }
 
-export async function addServerMessage(msg: Omit<PortalMessage, "id" | "sentAt">) {
+export async function addServerMessage(msg: {
+  clientId: string;
+  from: PortalMessage["from"];
+  subject: string;
+  body: string;
+  read?: boolean;
+}) {
+  if (!msg.clientId?.trim()) throw new Error("clientId is required");
   const row = await prisma.portalMessage.create({
     data: {
-      id: `m-${Date.now()}`,
+      id: `m-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      clientId: msg.clientId,
       from: msg.from,
       subject: msg.subject,
       body: msg.body,
-      read: msg.read,
+      read: msg.read ?? msg.from === "client",
     },
+    include: { client: { select: { name: true, email: true } } },
   });
   return {
     id: row.id,
+    clientId: row.clientId,
+    clientName: clientLabel(row.client),
     from: row.from as PortalMessage["from"],
     subject: row.subject,
     body: row.body,
     sentAt: row.sentAt.toISOString(),
     read: row.read,
   };
+}
+
+export async function addServerTaxReturn(input: {
+  clientId: string;
+  year: number;
+  type: string;
+  status: string;
+  preparer: string;
+  filedDate?: string;
+  refundEstimate?: string;
+}) {
+  const row = await prisma.portalTaxReturn.create({
+    data: {
+      id: `tr-${input.clientId}-${input.year}`,
+      clientId: input.clientId,
+      year: input.year,
+      type: input.type,
+      status: input.status,
+      preparer: input.preparer,
+      filedDate: input.filedDate ?? null,
+      refundEstimate: input.refundEstimate ?? null,
+    },
+  });
+  return row;
+}
+
+export async function addServerAppointment(input: {
+  clientId: string;
+  title: string;
+  date: string;
+  time: string;
+  type: string;
+  status?: string;
+  notes?: string;
+}) {
+  return prisma.portalAppointment.create({
+    data: {
+      id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      clientId: input.clientId,
+      title: input.title,
+      date: input.date,
+      time: input.time,
+      type: input.type,
+      status: input.status ?? "scheduled",
+      notes: input.notes ?? null,
+    },
+  });
+}
+
+export async function addServerInvoice(input: {
+  clientId: string;
+  description: string;
+  amount: number;
+  dueDate: string;
+  status?: string;
+  taxYear?: number;
+}) {
+  return prisma.portalInvoice.create({
+    data: {
+      id: `inv-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      clientId: input.clientId,
+      description: input.description,
+      amount: input.amount,
+      dueDate: input.dueDate,
+      status: input.status ?? "pending",
+      taxYear: input.taxYear ?? null,
+    },
+  });
+}
+
+export async function seedClientChecklist(
+  clientId: string,
+  items: { id: string; label: string; category: string; done?: boolean }[],
+) {
+  await prisma.portalChecklistItem.createMany({
+    data: items.map((item) => ({
+      id: `${clientId}__${item.id}`,
+      clientId,
+      itemKey: item.id,
+      label: item.label,
+      category: item.category,
+      done: Boolean(item.done),
+    })),
+    skipDuplicates: true,
+  });
 }
 
 export async function deletePortalItem(type: keyof ServerPortalData, id: string): Promise<boolean> {
@@ -218,7 +354,7 @@ export async function deletePortalItem(type: keyof ServerPortalData, id: string)
         await prisma.portalDocument.delete({ where: { id } });
         break;
       case "taxReturns":
-        await prisma.portalTaxReturn.delete({ where: { year: Number(id) } });
+        await prisma.portalTaxReturn.delete({ where: { id } });
         break;
       case "messages":
         await prisma.portalMessage.delete({ where: { id } });
@@ -259,9 +395,9 @@ export async function updatePortalItem(
         break;
       case "taxReturns":
         await prisma.portalTaxReturn.update({
-          where: { year: Number(id) },
+          where: { id },
           data: {
-            ...updates,
+            ...(updates as object),
             lastUpdated: updates.lastUpdated ? new Date(String(updates.lastUpdated)) : new Date(),
           } as { status?: string; lastUpdated?: Date },
         });
@@ -290,6 +426,21 @@ export async function updatePortalItem(
     return true;
   } catch {
     return false;
+  }
+}
+
+/** Mark checklist by template key (tc-p1) for a client */
+export async function setChecklistDoneByKey(clientId: string, itemKey: string, done: boolean) {
+  const id = `${clientId}__${itemKey}`;
+  try {
+    await prisma.portalChecklistItem.update({ where: { id }, data: { done } });
+    return true;
+  } catch {
+    // fallback: try matching itemKey
+    const row = await prisma.portalChecklistItem.findFirst({ where: { clientId, itemKey } });
+    if (!row) return false;
+    await prisma.portalChecklistItem.update({ where: { id: row.id }, data: { done } });
+    return true;
   }
 }
 

@@ -1,13 +1,32 @@
-import type { ClientTaxProfile, PortalDocument, PortalUser } from "@/types/client-portal";
+import type {
+  ClientTaxProfile,
+  PortalAppointment,
+  PortalDocument,
+  PortalInvoice,
+  PortalMessage,
+  PortalUser,
+  TaxReturnStatus,
+  IrsNotice,
+  LegalCase,
+  ChecklistItem,
+} from "@/types/client-portal";
 import { emptyClientTaxProfile } from "@/types/client-portal";
+import { SEED_CHECKLIST } from "@/data/client-portal";
 import { hashPassword, newSalt } from "@/lib/password";
-import { listClientDocuments } from "@/lib/portal-server-store";
+import { readPortalData, seedClientChecklist } from "@/lib/portal-server-store";
 import { prisma } from "@/lib/prisma";
 
 export type PortalClientDetail = {
   user: PortalUser;
   profile: ClientTaxProfile;
   documents: PortalDocument[];
+  messages: PortalMessage[];
+  taxReturns: TaxReturnStatus[];
+  appointments: PortalAppointment[];
+  invoices: PortalInvoice[];
+  irsNotices: IrsNotice[];
+  legalCases: LegalCase[];
+  checklist: ChecklistItem[];
   createdAt: string;
 };
 
@@ -78,6 +97,8 @@ export async function registerPortalClient(input: {
       profileData: JSON.stringify(profile),
     },
   });
+
+  await seedClientChecklist(client.id, SEED_CHECKLIST);
   return toPublicUser(client);
 }
 
@@ -123,13 +144,27 @@ export async function saveClientProfile(
 export async function getPortalClientDetail(id: string): Promise<PortalClientDetail | null> {
   const client = await prisma.portalClient.findUnique({ where: { id } });
   if (!client) return null;
-  const documents = await listClientDocuments(client.id);
+  const data = await readPortalData(client.id);
   return {
     user: toPublicUser(client),
     profile: parseProfile(client.profileData),
-    documents,
+    documents: data.documents,
+    messages: data.messages,
+    taxReturns: data.taxReturns,
+    appointments: data.appointments,
+    invoices: data.invoices,
+    irsNotices: data.irsNotices,
+    legalCases: data.legalCases,
+    checklist: data.checklist,
     createdAt: client.createdAt.toISOString(),
   };
+}
+
+export async function ensureClientChecklist(clientId: string) {
+  const count = await prisma.portalChecklistItem.count({ where: { clientId } });
+  if (count === 0) {
+    await seedClientChecklist(clientId, SEED_CHECKLIST);
+  }
 }
 
 export async function deletePortalClient(id: string): Promise<boolean> {

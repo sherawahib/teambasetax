@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
 import {
+  addServerAppointment,
+  addServerInvoice,
   addServerMessage,
+  addServerTaxReturn,
   deletePortalItem,
   readPortalData,
   updatePortalItem,
@@ -12,7 +15,9 @@ export async function GET(request: Request) {
   if (!isAdminRequest(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const data = await readPortalData();
+  const { searchParams } = new URL(request.url);
+  const clientId = searchParams.get("clientId")?.trim() || undefined;
+  const data = await readPortalData(clientId);
   return NextResponse.json(data);
 }
 
@@ -65,19 +70,95 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { action: "reply"; subject: string; message: string };
-    if (body.action !== "reply" || !body.subject?.trim() || !body.message?.trim()) {
-      return NextResponse.json({ error: "Invalid reply payload." }, { status: 400 });
+    const body = (await request.json()) as {
+      action: "reply" | "tax-return" | "appointment" | "invoice";
+      clientId?: string;
+      subject?: string;
+      message?: string;
+      year?: number;
+      type?: string;
+      status?: string;
+      preparer?: string;
+      filedDate?: string;
+      refundEstimate?: string;
+      title?: string;
+      date?: string;
+      time?: string;
+      notes?: string;
+      description?: string;
+      amount?: number;
+      dueDate?: string;
+      taxYear?: number;
+    };
+
+    if (!body.clientId?.trim()) {
+      return NextResponse.json({ error: "clientId required." }, { status: 400 });
     }
 
-    const entry = await addServerMessage({
-      from: "firm",
-      subject: body.subject.trim(),
-      body: body.message.trim(),
-      read: false,
-    });
-    return NextResponse.json({ message: entry });
-  } catch {
-    return NextResponse.json({ error: "Reply failed." }, { status: 500 });
+    if (body.action === "reply") {
+      if (!body.subject?.trim() || !body.message?.trim()) {
+        return NextResponse.json({ error: "Invalid reply payload." }, { status: 400 });
+      }
+      const entry = await addServerMessage({
+        clientId: body.clientId,
+        from: "firm",
+        subject: body.subject.trim(),
+        body: body.message.trim(),
+        read: false,
+      });
+      return NextResponse.json({ message: entry });
+    }
+
+    if (body.action === "tax-return") {
+      if (!body.year || !body.type || !body.status || !body.preparer) {
+        return NextResponse.json({ error: "Invalid tax return payload." }, { status: 400 });
+      }
+      const row = await addServerTaxReturn({
+        clientId: body.clientId,
+        year: body.year,
+        type: body.type,
+        status: body.status,
+        preparer: body.preparer,
+        filedDate: body.filedDate,
+        refundEstimate: body.refundEstimate,
+      });
+      return NextResponse.json({ taxReturn: row });
+    }
+
+    if (body.action === "appointment") {
+      if (!body.title || !body.date || !body.time || !body.type) {
+        return NextResponse.json({ error: "Invalid appointment payload." }, { status: 400 });
+      }
+      const row = await addServerAppointment({
+        clientId: body.clientId,
+        title: body.title,
+        date: body.date,
+        time: body.time,
+        type: body.type,
+        status: body.status,
+        notes: body.notes,
+      });
+      return NextResponse.json({ appointment: row });
+    }
+
+    if (body.action === "invoice") {
+      if (!body.description || body.amount == null || !body.dueDate) {
+        return NextResponse.json({ error: "Invalid invoice payload." }, { status: 400 });
+      }
+      const row = await addServerInvoice({
+        clientId: body.clientId,
+        description: body.description,
+        amount: Number(body.amount),
+        dueDate: body.dueDate,
+        status: body.status,
+        taxYear: body.taxYear,
+      });
+      return NextResponse.json({ invoice: row });
+    }
+
+    return NextResponse.json({ error: "Unknown action." }, { status: 400 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Create failed.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

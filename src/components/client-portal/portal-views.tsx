@@ -259,7 +259,7 @@ export function TaxReturnsView() {
         {data.taxReturns.map((ret) => {
           const stepIndex = steps.indexOf(ret.status);
           return (
-            <PortalCard key={ret.year} title={`Tax Year ${ret.year}`}>
+            <PortalCard key={ret.id || ret.year} title={`Tax Year ${ret.year}`}>
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <span className="font-medium">{ret.type}</span>
                 <StatusBadge status={ret.status} />

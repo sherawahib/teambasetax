@@ -111,12 +111,65 @@ export async function deleteClient(id: string) {
   if (!res.ok) throw new Error("Delete failed");
 }
 
-export async function sendAdminReply(subject: string, message: string) {
+export async function sendAdminReply(subject: string, message: string, clientId: string) {
   const res = await fetch("/api/admin/portal", {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify({ action: "reply", subject, message }),
+    body: JSON.stringify({ action: "reply", subject, message, clientId }),
   });
   if (!res.ok) throw new Error("Reply failed");
+  return res.json();
+}
+
+export async function createAdminTaxReturn(payload: {
+  clientId: string;
+  year: number;
+  type: string;
+  status: string;
+  preparer: string;
+  filedDate?: string;
+  refundEstimate?: string;
+}) {
+  const res = await fetch("/api/admin/portal", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ action: "tax-return", ...payload }),
+  });
+  if (!res.ok) throw new Error("Create tax return failed");
+  return res.json();
+}
+
+export async function createAdminAppointment(payload: {
+  clientId: string;
+  title: string;
+  date: string;
+  time: string;
+  type: string;
+  status?: string;
+  notes?: string;
+}) {
+  const res = await fetch("/api/admin/portal", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ action: "appointment", ...payload }),
+  });
+  if (!res.ok) throw new Error("Create appointment failed");
+  return res.json();
+}
+
+export async function createAdminInvoice(payload: {
+  clientId: string;
+  description: string;
+  amount: number;
+  dueDate: string;
+  status?: string;
+  taxYear?: number;
+}) {
+  const res = await fetch("/api/admin/portal", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ action: "invoice", ...payload }),
+  });
+  if (!res.ok) throw new Error("Create invoice failed");
   return res.json();
 }

@@ -20,18 +20,25 @@ model Testimonial {
 }
 
 model PortalClient {
-  id              String           @id
+  id              String               @id
   name            String
-  email           String           @unique
+  email           String               @unique
   phone           String
   accountType     String
   clientSince     String
   passwordHash    String
   salt            String
-  profileComplete Boolean          @default(false)
-  profileData     String           @default("{}")
-  createdAt       DateTime         @default(now())
+  profileComplete Boolean              @default(false)
+  profileData     String               @default("{}")
+  createdAt       DateTime             @default(now())
   documents       PortalDocument[]
+  messages        PortalMessage[]
+  taxReturns      PortalTaxReturn[]
+  appointments    PortalAppointment[]
+  invoices        PortalInvoice[]
+  irsNotices      PortalIrsNotice[]
+  legalCases      PortalLegalCase[]
+  checklist       PortalChecklistItem[]
 }
 
 model PortalDocument {
@@ -45,7 +52,6 @@ model PortalDocument {
   status          String
   checklistItemId String?
   mimeType        String       @default("application/octet-stream")
-  /// Base64 file payload for admin download (omit from list APIs when large)
   fileData        String?
   uploadedAt      DateTime     @default(now())
 
@@ -53,65 +59,97 @@ model PortalDocument {
 }
 
 model PortalMessage {
-  id      String   @id
-  from    String
-  subject String
-  body    String
-  read    Boolean  @default(false)
-  sentAt  DateTime @default(now())
+  id        String       @id
+  clientId  String
+  client    PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  from      String
+  subject   String
+  body      String
+  read      Boolean      @default(false)
+  sentAt    DateTime     @default(now())
+
+  @@index([clientId])
 }
 
 model PortalTaxReturn {
-  year           Int      @id
+  id             String       @id
+  clientId       String
+  client         PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  year           Int
   type           String
   status         String
   filedDate      String?
   refundEstimate String?
   preparer       String
-  lastUpdated    DateTime @default(now())
+  lastUpdated    DateTime     @default(now())
+
+  @@unique([clientId, year])
+  @@index([clientId])
 }
 
 model PortalAppointment {
-  id     String  @id
-  title  String
-  date   String
-  time   String
-  type   String
-  status String
-  notes  String?
+  id       String       @id
+  clientId String
+  client   PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title    String
+  date     String
+  time     String
+  type     String
+  status   String
+  notes    String?
+
+  @@index([clientId])
 }
 
 model PortalInvoice {
-  id          String @id
+  id          String       @id
+  clientId    String
+  client      PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
   description String
   amount      Float
   dueDate     String
   status      String
   taxYear     Int?
+
+  @@index([clientId])
 }
 
 model PortalIrsNotice {
-  id           String  @id
+  id           String       @id
+  clientId     String
+  client       PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
   noticeNumber String
   issueDate    String
   topic        String
   status       String
   responseDue  String?
   assignedTo   String
+
+  @@index([clientId])
 }
 
 model PortalLegalCase {
-  id         String @id
+  id         String       @id
+  clientId   String
+  client     PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
   title      String
   category   String
   status     String
   openedDate String
   nextStep   String
+
+  @@index([clientId])
 }
 
 model PortalChecklistItem {
-  id       String  @id
+  id       String       @id
+  clientId String
+  client   PortalClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  itemKey  String
   label    String
   category String
-  done     Boolean @default(false)
+  done     Boolean      @default(false)
+
+  @@unique([clientId, itemKey])
+  @@index([clientId])
 }
