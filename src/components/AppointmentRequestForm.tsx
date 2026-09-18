@@ -198,6 +198,8 @@ export default function AppointmentRequestForm() {
   const [form, setForm] = useState<FormData>(INITIAL);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const minDate = useMemo(() => new Date().toISOString().split("T")[0], []);
 
@@ -249,12 +251,30 @@ export default function AppointmentRequestForm() {
     setStep((s) => Math.max(s - 1, 1) as Step);
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validateStep(4)) {
       setStep(4);
       return;
     }
-    setSubmitted(true);
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/appointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(data.error || "Submission failed. Please try again.");
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setSubmitError("Unable to submit right now. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -721,14 +741,18 @@ export default function AppointmentRequestForm() {
               <ArrowRight className="h-4 w-4" />
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-semibold text-white hover:bg-gold-light transition-colors w-full sm:w-auto min-h-11"
-            >
-              Submit Appointment Request
-              <CheckCircle2 className="h-4 w-4" />
-            </button>
+            <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto">
+              {submitError && <p className="text-sm text-red-600 text-right">{submitError}</p>}
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-semibold text-white hover:bg-gold-light transition-colors w-full sm:w-auto min-h-11 disabled:opacity-60"
+              >
+                {submitting ? "Submitting…" : "Submit Appointment Request"}
+                <CheckCircle2 className="h-4 w-4" />
+              </button>
+            </div>
           )}
         </div>
       </div>
