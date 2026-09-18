@@ -232,11 +232,12 @@ export default function CompleteProfileWizard({ session, onComplete, allowSkip, 
         .map((m) =>
           fetch("/api/portal", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(session.token ? { "x-portal-token": session.token } : {}),
+            },
             body: JSON.stringify({
               action: "checklist",
-              clientId: session.user.id,
-              email: session.user.email,
               itemKey: m.id,
               done: true,
             }),

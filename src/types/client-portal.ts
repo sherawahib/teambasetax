@@ -139,6 +139,8 @@ export type ChecklistItem = {
 export type PortalSession = {
   user: PortalUser;
   loggedInAt: string;
+  /** Signed server token required for portal API calls */
+  token: string;
 };
 
 /** Full tax intake profile from Tax Client Checklist */

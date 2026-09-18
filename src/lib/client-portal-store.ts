@@ -17,6 +17,7 @@ import { SEED_CHECKLIST } from "@/data/client-portal";
 
 const SESSION_KEY = "tbts-portal-session";
 const DATA_KEY = "tbts-portal-data-v3";
+const TOKEN_KEY = "tbts-portal-token";
 
 type PortalData = {
   documents: PortalDocument[];
@@ -30,6 +31,14 @@ type PortalData = {
 };
 
 let serverCache: PortalData | null = null;
+
+function authHeaders(json = true): HeadersInit {
+  const session = getSession();
+  const headers: Record<string, string> = {};
+  if (json) headers["Content-Type"] = "application/json";
+  if (session?.token) headers["x-portal-token"] = session.token;
+  return headers;
+}
 
 /** Empty workspace — real data always comes from the server per client */
 function emptyData(): PortalData {
@@ -63,11 +72,20 @@ function writeData(data: PortalData) {
 export function getSession(): PortalSession | null {
   if (typeof window === "undefined") return null;
   const raw = sessionStorage.getItem(SESSION_KEY);
-  return raw ? (JSON.parse(raw) as PortalSession) : null;
+  if (!raw) return null;
+  const session = JSON.parse(raw) as PortalSession;
+  // Old sessions without token must re-login
+  if (!session?.token || !session?.user?.id) {
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    return null;
+  }
+  return session;
 }
 
 export function saveSession(session: PortalSession) {
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  if (session.token) sessionStorage.setItem(TOKEN_KEY, session.token);
   readData();
 }
 
@@ -82,7 +100,14 @@ export async function login(email: string, password: string): Promise<{ session:
     if (!res.ok) {
       return { session: null, error: data.error ?? "Sign in failed." };
     }
-    const session: PortalSession = { user: data.user, loggedInAt: data.loggedInAt };
+    if (!data.token) {
+      return { session: null, error: "Sign in incomplete. Please try again." };
+    }
+    const session: PortalSession = {
+      user: data.user,
+      loggedInAt: data.loggedInAt,
+      token: data.token,
+    };
     saveSession(session);
     await fetchPortalDataFromServer();
     return { session };
@@ -108,7 +133,14 @@ export async function signup(input: {
     if (!res.ok) {
       return { session: null, error: data.error ?? "Sign up failed." };
     }
-    const session: PortalSession = { user: data.user, loggedInAt: data.loggedInAt };
+    if (!data.token) {
+      return { session: null, error: "Sign up incomplete. Please try again." };
+    }
+    const session: PortalSession = {
+      user: data.user,
+      loggedInAt: data.loggedInAt,
+      token: data.token,
+    };
     saveSession(session);
     await fetchPortalDataFromServer();
     return { session };
@@ -119,6 +151,8 @@ export async function signup(input: {
 
 export function logout() {
   sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  serverCache = null;
 }
 
 export function getPortalData(): PortalData {
@@ -129,12 +163,8 @@ export function getPortalData(): PortalData {
 export async function fetchPortalDataFromServer(): Promise<PortalData> {
   try {
     const session = getSession();
-    const qs = session?.user?.id
-      ? `?clientId=${encodeURIComponent(session.user.id)}`
-      : session?.user?.email
-        ? `?email=${encodeURIComponent(session.user.email)}`
-        : "";
-    const res = await fetch(`/api/portal${qs}`);
+    if (!session?.token) return readData();
+    const res = await fetch("/api/portal", { headers: authHeaders(false) });
     if (res.ok) {
       serverCache = (await res.json()) as PortalData;
       return serverCache;
@@ -213,11 +243,9 @@ export function addDocument(
 
     await fetch("/api/portal", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({
         action: "document",
-        clientId: session?.user.id,
-        email: session?.user.email,
         name: doc.name,
         category: doc.category,
         size: doc.size,
@@ -234,9 +262,9 @@ export function addDocument(
   return newDoc;
 }
 
-export async function loadTaxProfile(email: string): Promise<ClientTaxProfile | null> {
+export async function loadTaxProfile(_email: string): Promise<ClientTaxProfile | null> {
   try {
-    const res = await fetch(`/api/portal/profile?email=${encodeURIComponent(email)}`);
+    const res = await fetch("/api/portal/profile", { headers: authHeaders(false) });
     if (!res.ok) return null;
     const data = await res.json();
     return data.profile as ClientTaxProfile;
@@ -252,7 +280,7 @@ export async function saveTaxProfile(
   try {
     const res = await fetch("/api/portal/profile", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({ email, profile }),
     });
     const data = await res.json();
@@ -289,11 +317,9 @@ export function sendMessage(subject: string, body: string) {
 
   fetch("/api/portal", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(),
     body: JSON.stringify({
       action: "message",
-      clientId: session?.user.id,
-      email: session?.user.email,
       subject,
       text: body,
     }),
@@ -312,7 +338,6 @@ export function markMessagesRead() {
 }
 
 export function toggleChecklistItem(id: string) {
-  const session = getSession();
   const data = getPortalData();
   const next = data.checklist.map((item) => (item.id === id ? { ...item, done: !item.done } : item));
   const updatedItem = next.find((item) => item.id === id);
@@ -323,11 +348,9 @@ export function toggleChecklistItem(id: string) {
   const itemKey = updatedItem?.itemKey || (id.includes("__") ? id.split("__").pop()! : id);
   fetch("/api/portal", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(),
     body: JSON.stringify({
       action: "checklist",
-      clientId: session?.user.id,
-      email: session?.user.email,
       itemKey,
       id,
       done: updatedItem?.done,

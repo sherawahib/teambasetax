@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { registerPortalClient } from "@/lib/portal-clients-store";
+import { createPortalToken } from "@/lib/portal-session";
 
 export async function POST(request: Request) {
   try {
@@ -35,8 +36,10 @@ export async function POST(request: Request) {
       accountType: "Individual",
     });
 
+    const token = createPortalToken(user);
     return NextResponse.json({
       user,
+      token,
       loggedInAt: new Date().toISOString(),
     });
   } catch (err) {

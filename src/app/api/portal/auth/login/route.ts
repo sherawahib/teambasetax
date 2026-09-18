@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticatePortalClient } from "@/lib/portal-clients-store";
+import { createPortalToken } from "@/lib/portal-session";
 
 export async function POST(request: Request) {
   try {
@@ -14,8 +15,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
     }
 
+    const token = createPortalToken(user);
     return NextResponse.json({
       user,
+      token,
       loggedInAt: new Date().toISOString(),
     });
   } catch {

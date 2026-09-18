@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { getClientProfile, saveClientProfile } from "@/lib/portal-clients-store";
+import { getPortalAuth } from "@/lib/portal-session";
 import type { ClientTaxProfile } from "@/types/client-portal";
 
 export async function GET(request: Request) {
   try {
-    const email = new URL(request.url).searchParams.get("email");
-    if (!email) {
-      return NextResponse.json({ error: "Email is required." }, { status: 400 });
+    const auth = getPortalAuth(request);
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in again." }, { status: 401 });
     }
-    const profile = await getClientProfile(email);
+    const profile = await getClientProfile(auth.email);
     if (!profile) {
       return NextResponse.json({ error: "Client not found." }, { status: 404 });
     }
@@ -21,14 +22,19 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const auth = getPortalAuth(request);
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in again." }, { status: 401 });
+    }
     const body = (await request.json()) as {
       email?: string;
       profile?: ClientTaxProfile;
     };
-    if (!body.email?.trim() || !body.profile) {
-      return NextResponse.json({ error: "Email and profile are required." }, { status: 400 });
+    if (!body.profile) {
+      return NextResponse.json({ error: "Profile is required." }, { status: 400 });
     }
-    const result = await saveClientProfile(body.email.trim(), body.profile);
+    // Always save against authenticated account — ignore spoofed email
+    const result = await saveClientProfile(auth.email, body.profile);
     if (!result) {
       return NextResponse.json({ error: "Client not found." }, { status: 404 });
     }
