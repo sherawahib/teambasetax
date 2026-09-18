@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
 
+/** Firm admin inbox — all website form notifications go here */
+export const ADMIN_NOTIFY_EMAIL = "michael.reis@teambasedtax.com";
+
 function required(name: string) {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`Missing env ${name}`);
@@ -15,7 +18,7 @@ export function getMailConfig() {
     pass: required("SMTP_PASS").replace(/\s+/g, ""),
     fromName: process.env.SMTP_FROM_NAME?.trim() || "TeamBased Tax",
     fromEmail: process.env.SMTP_FROM?.trim() || process.env.SMTP_USER!.trim(),
-    to: process.env.MAIL_TO?.trim() || "michael.reis@teambasedtax.com",
+    to: ADMIN_NOTIFY_EMAIL,
   };
 }
 
@@ -49,6 +52,16 @@ export async function sendMail(options: {
     text: options.text,
     html: options.html || options.text.replace(/\n/g, "<br/>"),
   });
+}
+
+/** Always notify the firm admin (michael.reis@…) */
+export async function notifyAdmin(options: {
+  subject: string;
+  text: string;
+  html?: string;
+  replyTo?: string;
+}) {
+  return sendMail({ ...options, to: ADMIN_NOTIFY_EMAIL });
 }
 
 export function escapeHtml(value: string) {

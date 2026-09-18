@@ -6,6 +6,7 @@ import {
   CreditCard,
   FileCheck,
   FileText,
+  Inbox,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -26,6 +27,7 @@ import {
   AdminDashboardView,
   AdminDocumentsView,
   AdminFeedbackView,
+  AdminInboxView,
   AdminIrsLegalView,
   AdminMessagesView,
   AdminTaxReturnsView,
@@ -33,6 +35,7 @@ import {
 
 const ICONS: Record<AdminSection, typeof LayoutDashboard> = {
   dashboard: LayoutDashboard,
+  inbox: Inbox,
   feedback: Star,
   messages: MessageSquare,
   documents: FileText,
@@ -83,6 +86,8 @@ export default function AdminPortalApp() {
     switch (section) {
       case "dashboard":
         return <AdminDashboardView {...viewProps} />;
+      case "inbox":
+        return <AdminInboxView {...viewProps} />;
       case "feedback":
         return <AdminFeedbackView {...viewProps} />;
       case "messages":

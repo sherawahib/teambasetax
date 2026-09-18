@@ -2,6 +2,7 @@ import type { AdminSection } from "@/types/admin";
 
 export const ADMIN_NAV: { id: AdminSection; label: string }[] = [
   { id: "dashboard", label: "Dashboard" },
+  { id: "inbox", label: "Form Inbox" },
   { id: "feedback", label: "Client Feedback" },
   { id: "messages", label: "Messages" },
   { id: "documents", label: "Documents" },

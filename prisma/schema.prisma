@@ -19,6 +19,22 @@ model Testimonial {
   createdAt DateTime @default(now())
 }
 
+/// Website form submissions (contact, appointment, newsletter) for admin inbox
+model FormSubmission {
+  id        String   @id
+  type      String
+  name      String
+  email     String
+  phone     String   @default("")
+  subject   String   @default("")
+  payload   String   @default("{}")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+}
+
 model PortalClient {
   id              String               @id
   name            String

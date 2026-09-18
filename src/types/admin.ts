@@ -1,5 +1,6 @@
 export type AdminSection =
   | "dashboard"
+  | "inbox"
   | "feedback"
   | "messages"
   | "documents"

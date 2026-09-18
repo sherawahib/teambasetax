@@ -94,8 +94,29 @@ export async function POST(request: Request) {
         from: "client",
         subject: body.subject.trim(),
         body: body.text.trim(),
-        read: true,
+        read: false,
       });
+      try {
+        const { notifyAdmin } = await import("@/lib/email");
+        const { prisma } = await import("@/lib/prisma");
+        const client = await prisma.portalClient.findUnique({ where: { id: clientId } });
+        await notifyAdmin({
+          subject: `Portal message: ${body.subject.trim()}`,
+          replyTo: client?.email,
+          text: [
+            "New client portal message",
+            "",
+            `Client: ${client?.name || "Unknown"} (${client?.email || clientId})`,
+            `Subject: ${body.subject.trim()}`,
+            "",
+            body.text.trim(),
+            "",
+            "Also visible in Admin Portal → Messages.",
+          ].join("\n"),
+        });
+      } catch (err) {
+        console.error("Portal message notify failed:", err);
+      }
       return NextResponse.json({ message: msg });
     }
 

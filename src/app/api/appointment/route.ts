@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { escapeHtml, sendMail } from "@/lib/email";
+import { escapeHtml, notifyAdmin, sendMail } from "@/lib/email";
+import { createFormSubmission } from "@/lib/form-submissions-store";
 
 export async function POST(request: Request) {
   try {
@@ -13,17 +14,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Required contact fields missing." }, { status: 400 });
     }
 
+    const name = `${firstName} ${lastName}`.trim();
     const lines = Object.entries(body)
       .filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== "")
       .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : String(v)}`);
 
-    await sendMail({
-      subject: `Appointment request: ${firstName} ${lastName}`,
+    await createFormSubmission({
+      type: "appointment",
+      name,
+      email,
+      phone,
+      subject: `Appointment: ${name}`,
+      payload: body,
+    });
+
+    await notifyAdmin({
+      subject: `Appointment request: ${name}`,
       replyTo: email,
-      text: ["New appointment request", "", ...lines].join("\n"),
+      text: ["New appointment request", "", ...lines, "", "Also saved in Admin Portal → Form Inbox."].join("\n"),
       html: `
         <h2>New appointment request</h2>
         <pre style="font-family:ui-sans-serif,system-ui,sans-serif;white-space:pre-wrap">${escapeHtml(lines.join("\n"))}</pre>
+        <p style="color:#666;font-size:12px">Also saved in Admin Portal → Form Inbox.</p>
       `,
     });
 

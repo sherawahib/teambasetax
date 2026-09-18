@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { escapeHtml, sendMail } from "@/lib/email";
+import { escapeHtml, notifyAdmin, sendMail } from "@/lib/email";
+import { createFormSubmission } from "@/lib/form-submissions-store";
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +18,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Name, email, and message are required." }, { status: 400 });
     }
 
-    await sendMail({
+    await createFormSubmission({
+      type: "contact",
+      name,
+      email,
+      subject: `Contact from ${name}`,
+      payload: { message },
+    });
+
+    await notifyAdmin({
       subject: `Website contact: ${name}`,
       replyTo: email,
       text: [
@@ -28,6 +37,8 @@ export async function POST(request: Request) {
         "",
         "Message:",
         message,
+        "",
+        "Also saved in Admin Portal → Form Inbox.",
       ].join("\n"),
       html: `
         <h2>New contact form submission</h2>
@@ -35,10 +46,10 @@ export async function POST(request: Request) {
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Message:</strong></p>
         <p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
+        <p style="color:#666;font-size:12px">Also saved in Admin Portal → Form Inbox.</p>
       `,
     });
 
-    // Optional confirmation to visitor
     try {
       await sendMail({
         to: email,
@@ -46,7 +57,7 @@ export async function POST(request: Request) {
         text: `Hi ${name},\n\nThank you for contacting TeamBased Tax Services. We received your message and will get back to you soon.\n\n— TeamBased Tax`,
       });
     } catch {
-      /* firm notification already sent */
+      /* admin notify already saved/sent */
     }
 
     return NextResponse.json({ ok: true });

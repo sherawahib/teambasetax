@@ -9,15 +9,19 @@ import {
   deleteFeedback,
   deletePortalItem,
   deleteClient,
+  deleteSubmission,
   downloadAdminDocument,
   fetchAdminClientDetail,
   fetchAdminClients,
   fetchAdminPortalData,
+  fetchAdminSubmissions,
   fetchAdminTestimonials,
   createAdminTaxReturn,
+  markSubmissionRead,
   sendAdminReply,
   updatePortalItem,
 } from "@/lib/admin-store";
+import type { FormSubmissionRecord } from "@/lib/form-submissions-store";
 import type { PortalClientDetail } from "@/lib/portal-clients-store";
 import type { ServerPortalData } from "@/lib/portal-server-store";
 import type { Testimonial } from "@/types/testimonial";
@@ -28,12 +32,16 @@ type ViewProps = { onRefresh: () => void; refreshKey: number };
 export function AdminDashboardView({ refreshKey }: ViewProps) {
   const [portal, setPortal] = useState<ServerPortalData | null>(null);
   const [feedback, setFeedback] = useState<{ count: number; averageRating: number } | null>(null);
+  const [inboxUnread, setInboxUnread] = useState(0);
 
   useEffect(() => {
-    Promise.all([fetchAdminPortalData(), fetchAdminTestimonials()]).then(([p, t]) => {
-      setPortal(p);
-      setFeedback({ count: t.count, averageRating: t.averageRating });
-    });
+    Promise.all([fetchAdminPortalData(), fetchAdminTestimonials(), fetchAdminSubmissions()]).then(
+      ([p, t, s]) => {
+        setPortal(p);
+        setFeedback({ count: t.count, averageRating: t.averageRating });
+        setInboxUnread(s.unread);
+      },
+    );
   }, [refreshKey]);
 
   if (!portal || !feedback) return <p className="text-sm text-muted p-4">Loading dashboard…</p>;
@@ -44,14 +52,17 @@ export function AdminDashboardView({ refreshKey }: ViewProps) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">Admin Dashboard</h2>
-        <p className="text-sm text-muted mt-1">Overview of client portal activity and feedback.</p>
+        <p className="text-sm text-muted mt-1">
+          Notifications go to michael.reis@teambasedtax.com — submissions also appear in Form Inbox.
+        </p>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {[
+          { label: "Form Inbox (new)", value: inboxUnread },
           { label: "Client Feedback", value: feedback.count },
           { label: "Avg Rating", value: feedback.averageRating.toFixed(1) },
           { label: "Documents", value: portal.documents.length },
-          { label: "Unread Messages", value: unread },
+          { label: "Unread Portal Msgs", value: unread },
         ].map((s) => (
           <div key={s.label} className="min-w-0 rounded-xl border border-border bg-surface-elevated p-3 shadow-sm sm:p-4">
             <p className="line-clamp-2 text-xs font-medium text-muted">{s.label}</p>
@@ -68,6 +79,133 @@ export function AdminDashboardView({ refreshKey }: ViewProps) {
             Share Testimonial Page →
           </Link>
         </div>
+      </AdminCard>
+    </div>
+  );
+}
+
+const TYPE_LABEL: Record<string, string> = {
+  contact: "Contact form",
+  appointment: "Appointment request",
+  newsletter: "Newsletter signup",
+};
+
+export function AdminInboxView({ onRefresh, refreshKey }: ViewProps) {
+  const [submissions, setSubmissions] = useState<FormSubmissionRecord[]>([]);
+  const [unread, setUnread] = useState(0);
+  const [filter, setFilter] = useState<"all" | "contact" | "appointment" | "newsletter">("all");
+
+  useEffect(() => {
+    fetchAdminSubmissions().then((d) => {
+      setSubmissions(d.submissions);
+      setUnread(d.unread);
+    });
+  }, [refreshKey]);
+
+  const visible = filter === "all" ? submissions : submissions.filter((s) => s.type === filter);
+
+  async function markRead(id: string) {
+    await markSubmissionRead(id, true);
+    onRefresh();
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this submission?")) return;
+    await deleteSubmission(id);
+    onRefresh();
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">Form Inbox</h2>
+        <p className="text-sm text-muted mt-1">
+          Website contact, appointment, and newsletter submissions. Email copies also go to{" "}
+          <span className="text-foreground font-medium">michael.reis@teambasedtax.com</span>.
+          {unread > 0 ? ` · ${unread} unread` : ""}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {(["all", "contact", "appointment", "newsletter"] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setFilter(f)}
+            className={`rounded-lg border px-3 py-2 text-xs font-medium min-h-11 ${
+              filter === f ? "border-gold bg-gold/10 text-foreground" : "border-border text-muted"
+            }`}
+          >
+            {f === "all" ? "All" : TYPE_LABEL[f]}
+          </button>
+        ))}
+      </div>
+
+      <AdminCard title={`Submissions (${visible.length})`}>
+        {visible.length === 0 ? (
+          <p className="text-sm text-muted">No submissions yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {visible.map((s) => (
+              <li
+                key={s.id}
+                className={`rounded-lg border p-3 sm:p-4 ${
+                  s.read ? "border-border bg-surface" : "border-gold/40 bg-gold/5"
+                }`}
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">
+                      {!s.read && <span className="mr-2 text-gold">●</span>}
+                      {s.subject || TYPE_LABEL[s.type] || s.type}
+                    </p>
+                    <p className="text-xs text-muted mt-0.5">
+                      {TYPE_LABEL[s.type] || s.type} · {s.name} · {s.email}
+                      {s.phone ? ` · ${s.phone}` : ""} · {formatDateTime(s.createdAt)}
+                    </p>
+                    {s.type === "contact" && typeof s.payload.message === "string" && (
+                      <p className="mt-2 text-sm text-slate-700 whitespace-pre-wrap">{s.payload.message}</p>
+                    )}
+                    {s.type === "appointment" && (
+                      <div className="mt-2 grid gap-1 text-xs text-slate-600 sm:grid-cols-2">
+                        {Object.entries(s.payload)
+                          .filter(([, v]) => v !== "" && v != null)
+                          .slice(0, 12)
+                          .map(([k, v]) => (
+                            <p key={k}>
+                              <span className="font-medium">{k}:</span>{" "}
+                              {Array.isArray(v) ? v.join(", ") : String(v)}
+                            </p>
+                          ))}
+                      </div>
+                    )}
+                    {s.type === "newsletter" && (
+                      <p className="mt-2 text-sm text-slate-700">Subscribed with {s.email}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 shrink-0">
+                    {!s.read && (
+                      <button
+                        type="button"
+                        onClick={() => markRead(s.id)}
+                        className="rounded border border-border px-3 py-2 text-xs font-medium min-h-11 hover:border-gold"
+                      >
+                        Mark read
+                      </button>
+                    )}
+                    <a
+                      href={`mailto:${s.email}`}
+                      className="inline-flex items-center rounded border border-border px-3 py-2 text-xs font-medium min-h-11 hover:border-gold"
+                    >
+                      Reply
+                    </a>
+                    <DeleteButton onClick={() => handleDelete(s.id)} />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </AdminCard>
     </div>
   );

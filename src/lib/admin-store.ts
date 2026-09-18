@@ -1,7 +1,8 @@
 "use client";
 
-import { ADMIN_TOKEN } from "@/lib/admin-auth";
+import { ADMIN_TOKEN, isValidAdminLogin } from "@/lib/admin-auth";
 import type { AdminSession } from "@/types/admin";
+import type { FormSubmissionRecord } from "@/lib/form-submissions-store";
 import type { ServerPortalData } from "@/lib/portal-server-store";
 import type { Testimonial } from "@/types/testimonial";
 
@@ -14,9 +15,9 @@ export function getAdminSession(): AdminSession | null {
 }
 
 export function adminLogin(email: string, password: string): AdminSession | null {
-  if (email === "admin@teambasedtax.com" && password === "admin2026") {
+  if (isValidAdminLogin(email, password)) {
     const session: AdminSession = {
-      email,
+      email: email.trim().toLowerCase(),
       token: ADMIN_TOKEN,
       loggedInAt: new Date().toISOString(),
     };
@@ -172,4 +173,28 @@ export async function createAdminInvoice(payload: {
   });
   if (!res.ok) throw new Error("Create invoice failed");
   return res.json();
+}
+
+export async function fetchAdminSubmissions() {
+  const res = await fetch("/api/admin/submissions", { headers: authHeaders() });
+  if (!res.ok) throw new Error("Failed to load submissions");
+  return res.json() as Promise<{ submissions: FormSubmissionRecord[]; unread: number }>;
+}
+
+export async function markSubmissionRead(id: string, read = true) {
+  const res = await fetch("/api/admin/submissions", {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify({ id, read }),
+  });
+  if (!res.ok) throw new Error("Update failed");
+}
+
+export async function deleteSubmission(id: string) {
+  const res = await fetch("/api/admin/submissions", {
+    method: "DELETE",
+    headers: authHeaders(),
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error("Delete failed");
 }

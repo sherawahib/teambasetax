@@ -47,6 +47,34 @@ export async function POST(request: Request) {
     const testimonial = await addTestimonial(body);
     const testimonials = await readTestimonials();
 
+    try {
+      const { notifyAdmin, escapeHtml } = await import("@/lib/email");
+      await notifyAdmin({
+        subject: `New testimonial: ${body.name.trim()} (${body.rating}★)`,
+        replyTo: body.email.trim(),
+        text: [
+          "New client feedback / testimonial",
+          "",
+          `Name: ${body.name.trim()}`,
+          `Email: ${body.email.trim()}`,
+          `Rating: ${body.rating}/5`,
+          `Service: ${body.service}`,
+          `Location: ${body.location || "—"}`,
+          "",
+          body.text.trim(),
+          "",
+          "Also visible in Admin Portal → Client Feedback.",
+        ].join("\n"),
+        html: `
+          <h2>New testimonial</h2>
+          <p><strong>${escapeHtml(body.name.trim())}</strong> · ${body.rating}/5 · ${escapeHtml(body.service)}</p>
+          <p>${escapeHtml(body.text.trim())}</p>
+        `,
+      });
+    } catch (err) {
+      console.error("Testimonial notify failed:", err);
+    }
+
     return NextResponse.json({
       testimonial,
       averageRating: averageRating(testimonials),

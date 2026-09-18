@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { escapeHtml, sendMail } from "@/lib/email";
+import { escapeHtml, notifyAdmin } from "@/lib/email";
+import { createFormSubmission } from "@/lib/form-submissions-store";
 
 export async function POST(request: Request) {
   try {
@@ -17,19 +18,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "All fields are required." }, { status: 400 });
     }
 
-    await sendMail({
-      subject: `Newsletter signup: ${firstName} ${lastName}`,
+    const name = `${firstName} ${lastName}`.trim();
+
+    await createFormSubmission({
+      type: "newsletter",
+      name,
+      email,
+      subject: `Newsletter: ${name}`,
+      payload: { firstName, lastName, email },
+    });
+
+    await notifyAdmin({
+      subject: `Newsletter signup: ${name}`,
       replyTo: email,
       text: [
         "New newsletter signup",
         "",
-        `Name: ${firstName} ${lastName}`,
+        `Name: ${name}`,
         `Email: ${email}`,
+        "",
+        "Also saved in Admin Portal → Form Inbox.",
       ].join("\n"),
       html: `
         <h2>New newsletter signup</h2>
-        <p><strong>Name:</strong> ${escapeHtml(`${firstName} ${lastName}`)}</p>
+        <p><strong>Name:</strong> ${escapeHtml(name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+        <p style="color:#666;font-size:12px">Also saved in Admin Portal → Form Inbox.</p>
       `,
     });
 
