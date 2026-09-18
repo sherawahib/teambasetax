@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { escapeHtml, notifyAdmin, sendMail } from "@/lib/email";
+import { escapeHtml, isSmtpConfigured, notifyAdmin, sendMail } from "@/lib/email";
 import { createFormSubmission } from "@/lib/form-submissions-store";
 
 export async function POST(request: Request) {
@@ -28,30 +28,40 @@ export async function POST(request: Request) {
       payload: body,
     });
 
-    await notifyAdmin({
-      subject: `Appointment request: ${name}`,
-      replyTo: email,
-      text: ["New appointment request", "", ...lines, "", "Also saved in Admin Portal → Form Inbox."].join("\n"),
-      html: `
-        <h2>New appointment request</h2>
-        <pre style="font-family:ui-sans-serif,system-ui,sans-serif;white-space:pre-wrap">${escapeHtml(lines.join("\n"))}</pre>
-        <p style="color:#666;font-size:12px">Also saved in Admin Portal → Form Inbox.</p>
-      `,
-    });
-
-    try {
-      await sendMail({
-        to: email,
-        subject: "Appointment request received — TeamBased Tax",
-        text: `Hi ${firstName},\n\nWe received your appointment request and will contact you within 1 business day to confirm.\n\n— TeamBased Tax`,
-      });
-    } catch {
-      /* ignore confirmation failure */
+    let emailed = false;
+    if (isSmtpConfigured()) {
+      try {
+        await notifyAdmin({
+          subject: `Appointment request: ${name}`,
+          replyTo: email,
+          text: ["New appointment request", "", ...lines, "", "Also saved in Admin Portal → Form Inbox."].join("\n"),
+          html: `
+            <h2>New appointment request</h2>
+            <pre style="font-family:ui-sans-serif,system-ui,sans-serif;white-space:pre-wrap">${escapeHtml(lines.join("\n"))}</pre>
+          `,
+        });
+        try {
+          await sendMail({
+            to: email,
+            subject: "Appointment request received — TeamBased Tax",
+            text: `Hi ${firstName},\n\nWe received your appointment request and will contact you within 1 business day to confirm.\n\n— TeamBased Tax`,
+          });
+        } catch {
+          /* optional */
+        }
+        emailed = true;
+      } catch (err) {
+        console.error("Appointment email failed:", err);
+      }
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      emailed,
+      ...(!emailed ? { warning: "Saved in admin inbox; email delivery pending." } : {}),
+    });
   } catch (err) {
-    console.error("Appointment email failed:", err);
+    console.error("Appointment submit failed:", err);
     return NextResponse.json({ error: "Unable to submit appointment right now." }, { status: 500 });
   }
 }
