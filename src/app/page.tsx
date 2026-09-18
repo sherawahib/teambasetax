@@ -40,9 +40,9 @@ const features = [
 
 const quickLinks = [
   { label: "Secure Client Portal", href: "/resources/client-portal" },
-  { label: "Where's My Refund?", href: externalLinks.refundStatus, external: true },
+  { label: "Where's My Refund?", href: externalLinks.whereIsMyRefund },
   { label: "Financial Calculators", href: "/resources/financial-calculators" },
-  { label: "Make a Payment", href: externalLinks.makePayment, external: true },
+  { label: "Make a Payment", href: externalLinks.makePayment },
 ];
 
 export default function HomePage() {
@@ -182,29 +182,16 @@ export default function HomePage() {
       <section className="py-10 md:py-16 bg-surface">
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickLinks.map((link) =>
-              link.external ? (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-xl bg-surface-elevated border border-border p-5 hover:border-gold hover:shadow-md transition-all"
-                >
-                  <CheckCircle2 className="h-5 w-5 text-gold shrink-0" />
-                  <span className="font-medium text-foreground">{link.label}</span>
-                </a>
-              ) : (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="flex items-center gap-3 rounded-xl bg-surface-elevated border border-border p-5 hover:border-gold hover:shadow-md transition-all"
-                >
-                  <CheckCircle2 className="h-5 w-5 text-gold shrink-0" />
-                  <span className="font-medium text-foreground">{link.label}</span>
-                </Link>
-              ),
-            )}
+            {quickLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="flex items-center gap-3 rounded-xl bg-surface-elevated border border-border p-5 hover:border-gold hover:shadow-md transition-all"
+              >
+                <CheckCircle2 className="h-5 w-5 text-gold shrink-0" />
+                <span className="font-medium text-foreground">{link.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

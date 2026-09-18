@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export type FormSubmissionType = "contact" | "appointment" | "newsletter";
+export type FormSubmissionType = "contact" | "appointment" | "newsletter" | "payment";
 
 export type FormSubmissionRecord = {
   id: string;

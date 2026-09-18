@@ -88,12 +88,13 @@ const TYPE_LABEL: Record<string, string> = {
   contact: "Contact form",
   appointment: "Appointment request",
   newsletter: "Newsletter signup",
+  payment: "Payment request",
 };
 
 export function AdminInboxView({ onRefresh, refreshKey }: ViewProps) {
   const [submissions, setSubmissions] = useState<FormSubmissionRecord[]>([]);
   const [unread, setUnread] = useState(0);
-  const [filter, setFilter] = useState<"all" | "contact" | "appointment" | "newsletter">("all");
+  const [filter, setFilter] = useState<"all" | "contact" | "appointment" | "newsletter" | "payment">("all");
 
   useEffect(() => {
     fetchAdminSubmissions().then((d) => {
@@ -120,14 +121,14 @@ export function AdminInboxView({ onRefresh, refreshKey }: ViewProps) {
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">Form Inbox</h2>
         <p className="text-sm text-muted mt-1">
-          Website contact, appointment, and newsletter submissions. Email copies also go to{" "}
+          Website contact, appointment, newsletter, and payment submissions. Email copies also go to{" "}
           <span className="text-foreground font-medium">michael.reis@teambasedtax.com</span>.
           {unread > 0 ? ` · ${unread} unread` : ""}
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {(["all", "contact", "appointment", "newsletter"] as const).map((f) => (
+        {(["all", "contact", "appointment", "newsletter", "payment"] as const).map((f) => (
           <button
             key={f}
             type="button"
@@ -181,6 +182,25 @@ export function AdminInboxView({ onRefresh, refreshKey }: ViewProps) {
                     )}
                     {s.type === "newsletter" && (
                       <p className="mt-2 text-sm text-slate-700">Subscribed with {s.email}</p>
+                    )}
+                    {s.type === "payment" && (
+                      <div className="mt-2 grid gap-1 text-xs text-slate-600 sm:grid-cols-2">
+                        <p>
+                          <span className="font-medium">Amount:</span> ${String(s.payload.amount ?? "—")}
+                        </p>
+                        <p>
+                          <span className="font-medium">Method:</span> {String(s.payload.method ?? "—")}
+                        </p>
+                        <p>
+                          <span className="font-medium">Invoice:</span>{" "}
+                          {String(s.payload.invoiceNumber || "—")}
+                        </p>
+                        {s.payload.notes ? (
+                          <p className="sm:col-span-2">
+                            <span className="font-medium">Notes:</span> {String(s.payload.notes)}
+                          </p>
+                        ) : null}
+                      </div>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 shrink-0">

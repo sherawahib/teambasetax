@@ -1,6 +1,6 @@
 # TEAMBASED Tax Services Website
 
-Professional tax services website for [TEAMBASED Tax Services](https://tbtaxservice.com/) — enhanced design with full content, navigation, and interactive financial calculators.
+Professional tax services website for [TEAMBASED Tax Services](https://teambasedtax.com/) — enhanced design with full content, navigation, and interactive financial calculators.
 
 ## Features
 

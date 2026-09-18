@@ -11,7 +11,9 @@ export const contact = {
 
 export const externalLinks = {
   clientPortal: "/resources/client-portal",
-  makePayment: "https://tbtaxservice.com/resources/make-a-payment/",
+  makePayment: "/resources/make-a-payment",
+  whereIsMyRefund: "/resources/where-is-my-refund",
+  /** Official IRS tools (government — not tbtaxservice) */
   refundStatus: "https://www.irs.gov/refunds",
   irsWithholding: "https://www.irs.gov/individuals/tax-withholding-estimator",
   natp: "https://www.natptax.com/",
@@ -87,9 +89,8 @@ export const navigation: NavItem[] = [
         ],
       },
       { label: "Client Portal", href: "/resources/client-portal" },
-      { label: "Admin Portal", href: "/admin" },
-      { label: "Make a Payment", href: externalLinks.makePayment, external: true },
-      { label: "Where is My Refund?", href: externalLinks.refundStatus, external: true },
+      { label: "Make a Payment", href: externalLinks.makePayment },
+      { label: "Where is My Refund?", href: externalLinks.whereIsMyRefund },
     ],
   },
   {

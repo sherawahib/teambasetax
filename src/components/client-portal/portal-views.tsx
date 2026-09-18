@@ -103,14 +103,12 @@ export function DashboardView({ onNavigate }: PortalViewProps) {
             { label: "Upload Document", section: "documents" as const },
             { label: "Send Message", section: "messages" as const },
             { label: "Schedule Appointment", href: "/contact/request-appointment" },
-            { label: "Make Payment", href: externalLinks.makePayment, external: true },
+            { label: "Make Payment", href: externalLinks.makePayment },
           ].map((action) =>
             action.href ? (
               <Link
                 key={action.label}
                 href={action.href}
-                target={action.external ? "_blank" : undefined}
-                rel={action.external ? "noopener noreferrer" : undefined}
                 className="rounded-lg border border-border px-3 py-3 text-sm font-medium text-center hover:border-gold hover:text-gold transition-colors min-h-11 flex items-center justify-center"
               >
                 {action.label}
@@ -442,14 +440,12 @@ export function BillingView() {
                 <span className="font-bold text-foreground">${inv.amount.toFixed(2)}</span>
                 <StatusBadge status={inv.status} />
                 {(inv.status === "due" || inv.status === "pending") && (
-                  <a
+                  <Link
                     href={externalLinks.makePayment}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="inline-flex min-h-11 w-full items-center justify-center gap-1 rounded-lg border border-gold/30 px-3 text-sm font-medium text-gold hover:bg-gold/5 sm:min-h-0 sm:w-auto sm:border-0 sm:px-0 sm:hover:underline"
                   >
-                    Pay <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
+                    Pay
+                  </Link>
                 )}
               </div>
             </div>
@@ -458,15 +454,13 @@ export function BillingView() {
       </PortalCard>
 
       <PortalCard title="Refund Tracker">
-        <p className="text-sm text-slate-600 mb-3">Check your federal refund status directly with the IRS.</p>
-        <a
-          href={externalLinks.refundStatus}
-          target="_blank"
-          rel="noopener noreferrer"
+        <p className="text-sm text-slate-600 mb-3">Check your federal refund status with guidance from our site.</p>
+        <Link
+          href={externalLinks.whereIsMyRefund}
           className="inline-flex items-center gap-2 rounded-lg border border-gold text-gold px-4 py-2.5 text-sm font-semibold hover:bg-gold hover:text-white transition-colors"
         >
-          Where&apos;s My Refund? <ExternalLink className="h-4 w-4" />
-        </a>
+          Where&apos;s My Refund?
+        </Link>
       </PortalCard>
     </div>
   );

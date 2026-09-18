@@ -31,9 +31,8 @@ const quickActions = [
   },
   {
     label: "Make a Payment",
-    href: "https://tbtaxservice.com/resources/make-a-payment/",
+    href: "/resources/make-a-payment",
     icon: CreditCard,
-    external: true,
   },
 ];
 
@@ -42,7 +41,7 @@ const resourceLinks = [
   { label: "Frequently Asked Questions", href: "/resources/faq" },
   { label: "Tax Rates", href: "/resources/tax-rates" },
   { label: "Tax Due Dates", href: "/resources/tax-due-dates" },
-  { label: "Where Is My Refund?", href: "https://www.irs.gov/refunds", external: true },
+  { label: "Where Is My Refund?", href: "/resources/where-is-my-refund" },
 ];
 
 function FooterLink({
@@ -243,7 +242,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          {quickActions.map(({ label, href, icon: Icon, external }) => {
+          {quickActions.map(({ label, href, icon: Icon }) => {
             const className =
               "group flex min-h-14 items-center justify-between rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-gold-light/40 hover:bg-white/10";
             const content = (
@@ -258,11 +257,7 @@ export default function Footer() {
               </>
             );
 
-            return external ? (
-              <a key={label} href={href} target="_blank" rel="noopener noreferrer" className={className}>
-                {content}
-              </a>
-            ) : (
+            return (
               <Link key={label} href={href} className={className}>
                 {content}
               </Link>

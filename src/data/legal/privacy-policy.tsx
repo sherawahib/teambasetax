@@ -33,7 +33,7 @@ export const privacyPolicySections: LegalSection[] = [
       <>
         <p>
           TEAMBASED Tax Services (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) operates the website at{" "}
-          <strong>tbtaxservice.com</strong> and provides tax preparation, bookkeeping, IRS representation, and related
+          <strong>teambasedtax.com</strong> and provides tax preparation, bookkeeping, IRS representation, and related
           financial consulting services from our office in Germantown, Maryland.
         </p>
         <p>
