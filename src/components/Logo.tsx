@@ -22,9 +22,14 @@ export default function Logo({
   linkToHome = true,
 }: Props) {
   const sizeClass = sizeMap[variant];
-  // logo-light.png = transparent original colors for dark backgrounds
-  // logo.png = light-background friendly (white service text remapped to navy)
-  const src = onDark ? "/logo-light.png" : "/logo.png";
+  // footer uses dedicated white wordmark asset; other dark surfaces use logo-light
+  // logo.png = light-background friendly
+  const src =
+    variant === "footer"
+      ? "/logo-footer.png"
+      : onDark
+        ? "/logo-light.png"
+        : "/logo.png";
 
   const image = (
     // eslint-disable-next-line @next/next/no-img-element
